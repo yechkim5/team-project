@@ -1,55 +1,62 @@
 # Team Contract
-
-**Your team is free to revise this contract as your team wishes; we have scaffolded it with a recommended structure similar to the provided sample on Quercus.**
-
-After you reflect on past teamwork experiences and brainstorm a list of actions required for a positive teamwork experience, answer these questions. 
-
-Once you have all agreed on the contents of the team contract, make a PR to merge your team contract into the main branch of your team's repo on GitHub.
-
-**Please remember to remove any of the initial instruction text when your team finalizes your team contract; it should resemble the provided sample once complete, but with details specific to the expectations and norms agreed to by your entire team.**
-
----
+___
 ## Purpose of this Contract
 
 This contract sets out shared expectations and commitments for how our team will collaborate during the course. It is designed to promote accountability, professionalism, and mutual support as we complete individual preparation, readiness assurance tests, in-class activities, and our course project.
 
 ---
-## Team Norms and Expectations
-
-### Communication
-
-* Which platform will you use for communication outside of class, when required for work on your course project? (Examples: Text message, Discord, WeChat, etc.)
-
-* Each teammate agrees to respond to messages in at most how long? 1 day? 2 days? Some other amount of time? 
-
-* What things should a teammate notify you about? (Examples: if they think they won't be able to meet a deadline, if they have to miss lecture, etc.)
-
-* Respectful and inclusive behaviour are necessary for smooth and productive communication. What are some respectful and inclusive behaviours you expect when communicating with each other during lectures, labs, or outside of class? (Examples: Actively listening to each team members ideas, giving everyone a chance to meaningfully contribute, etc.)
-
+Team Norms and Expectations
 ---
+### a) Prerequisites
 
-### [Other Categories of norms and expectations go here]
+* Given the introductory nature of this course, team members are expected to have, at minimum, the programming proficiency required in lower-level computer science courses.
 
-* Based on your previous teamwork experiences, what other behaviours do you agree upon as a team?
-    - some examples of possible additional team norms and expectations are included in the sample team contract in case your team needs some help getting ideas for what else you want to include.
-
+* By choosing to enroll in this class, team members acknowledge that they are prepared, socially and emotionally, to handle the challenges and responsibilities that arise in a group project.
 ---
+### b) Communication
 
-## Decision Making
+* The primary avenue of communication for all project related and administrative matters will be a group Discord server. Should any member find themself unable to use the Discord application, communication using one's University of Toronto email address will also be accepted.
 
-* How will decisions about your team project be made? (Examples: By majority vote, by unanimous vote, etc.)
+* Team members are expected to respond to communication within two days at the very most. This also includes weekends; for example, communication sent out on Saturday is expected to be answered before the end of Monday.
 
+* Team members will notify their team of any deviations or difficulties related to their individual responsibilities. This includes giving notice of an absence from class or communicating difficulties completing assigned tasks.
+
+* All members of the team must strive to create an environment where everyone is comfortable communicating and feels their communications are valued. In addition to previous conditions, this includes using respectful language and treating the opinions of all members with respect.
+---
+### c) Decision-Making
+
+* All members of the team will possess equal control and responsibility for all project decisions.
+
+* All decisions should ideally be agreed on unanimously.
+
+* If a consensus is impossible, a majority vote will be used for decision-making.
+---
+### d) Participation and Work Quality
+
+* For the duration of the semester, it is mandatory that team members **consistently** engage with course content to effectively participate in group activities.
+
+* Experience with computer science and group work differ between members of the team; that said, it is still expected that all members of the team find some avenue to meaningfully contribute to course activities and team discussions.
+
+* Team members are required to complete assigned tasks before deadlines. Additionally, every member must ensure their work meets course expectations by writing clean readable code and testing their code.
+
+* Team members agree to open pull requests, in order to consult with other group members to ensure code readability and avoid needless conflicts, before merging code with the main project branch.
 ---
 ## Conflict resolution
 
-* How will your team resolve conflicts? (Example: by listening to each other's side of the issue and attempting to reach a compromise. By consulting a TA or instructor as a team, if a resolution has not yet been reached.)
+* Any personal conflict between team members can be resolved with or without the group should the involved parties wish, so long as the issue does not hinder group activities.
 
+* Should any conflict affecting course activities arise between members of the team, a group meeting will be held to gather input from both parties and collectively reach a mutually satisfying resolution.
+
+* If the group is unable to resolve a conflict, the issue will be escalated to a teacher, T.A, or course administrator.
 ---
 
 ## Accountability
 
-* Reliability and accountability are also important aspects of teamwork. What are the responsibilities of each team member? (Example: completing their share of the work in a timely manner, seeking assistance from teammates/TAs/instructors when required, etc.)
+* Team members agree to indicate all portions of their code generated by AI or copied directly from external sources. In addition, team members will give the prompt and model that generated the code or the URL of where the code was taken from.
 
+* Members must fully understand all code they contribute for credit and feel comfortable justifying the logic and design choices within their code. This includes all contributions to the final project.
+
+* All members of the team acknowledge that they are subject to and responsible for accurate peer evaluations of all team members based on their contributions to the group.
 ---
 
 ---
@@ -58,4 +65,4 @@ By signing below, we acknowledge that we have read, discussed, and agreed to the
 
 Team Member Signatures:
 
-(type names here)
+Sana, 
