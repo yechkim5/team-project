@@ -66,5 +66,5 @@ By signing below, we acknowledge that we have read, discussed, and agreed to the
 Team Member Signatures:
 
 Sana, Yechan,
-Rohan Kuan, Gurmanat Singh Kahlon
+Rohan Kuan, Gurmanat Singh Kahlon,
 Chuheng Zheng
