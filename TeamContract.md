@@ -67,4 +67,5 @@ Team Member Signatures:
 
 Sana, Yechan,
 Rohan Kuan, Gurmanat Singh Kahlon,
-Chuheng Zheng, Ishaan Sendhil
+Chuheng Zheng,
+Ishaan Sendhil
