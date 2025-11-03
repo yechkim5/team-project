@@ -10,7 +10,7 @@ public class Pokemon {
 	private final String name;
     private HashMap<String, Integer> stats;
     private final List<String> types;
-    private Attack[] moves;
+    private Move[] moves;
 
     /** Constructor for Pokemon
      * @param name the species name of the Pokemon.
@@ -27,10 +27,10 @@ public class Pokemon {
     public Pokemon(String name,
                    int hp, int attack, int defense,
                    int specialAttack, int specialDefense, int speed,
-                   List<String> types, Attack[] moves) {
+                   List<String> types, Move[] moves) {
         this.name = name;
         this.types = new ArrayList<String>();
-        this.moves = new Attack[4];
+        this.moves = new Move[4];
         this.stats = new HashMap<String, Integer>(6);
 
         stats.put("hp", hp); stats.put("attack", attack);
@@ -59,7 +59,7 @@ public class Pokemon {
         return types;
     }
 
-    public Attack[] getMoves() {
+    public Move[] getMoves() {
         return moves;
     }
 }
