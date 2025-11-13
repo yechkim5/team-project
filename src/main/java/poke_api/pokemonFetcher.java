@@ -17,16 +17,22 @@ public class pokemonFetcher {
         JSONObject oj = pf.getPokemon("charmander");
         System.out.println(pf.getPokemonName(oj));
 
+<<<<<<< HEAD
         //System.out.println(pf.getPokemonMoves(oj));
         // System.out.println(pf.getPokemonType(oj));
         // System.out.println(Arrays.toString(pf.getPokemonSprite(oj)));
         // System.out.println(pf.getPokemonType(oj));
         System.out.println(pf.getPokemonStats(oj));
+=======
+        System.out.println(pf.getPokemonMoves(oj));
+        // System.out.println(pf.getPokemonType(oj));
+        // System.out.println(Arrays.toString(pf.getPokemonSprite(oj)));
+>>>>>>> 7ebd430 (stash)
     }
 
-    private final OkHttpClient client = new OkHttpClient();
+    public final OkHttpClient client = new OkHttpClient();
 
-    private JSONObject getPokemon(String id) throws IOException {
+    public JSONObject getPokemon(String id) {
         // Private class just to get the raw pokemon response object
         // other classes will use this JSON object to get more information
 
@@ -45,10 +51,11 @@ public class pokemonFetcher {
             return json;
 
 
-    } catch (IOException e) {
-        throw new IOException(e);
+        } catch (IOException e) {
+            System.out.println("IOexception" + e);
+            return new JSONObject();
+            }
         }
-    }
 
     public String getPokemonName(JSONObject pokemon) {
         return pokemon.getString("name");
@@ -92,6 +99,8 @@ public class pokemonFetcher {
 
                 move.put(name, move_info);
 
+            } catch (IOException e1){
+                System.out.println("IOexception" + e1);
             }
 
         }
