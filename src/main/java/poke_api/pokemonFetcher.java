@@ -17,11 +17,10 @@ public class pokemonFetcher {
         JSONObject oj = pf.getPokemon("charizard");
         // System.out.println(pf.getPokemonName(oj));
 
-        //System.out.println(pf.getPokemonMoves(oj));
-        System.out.println(Arrays.toString(pf.getPokemonType(oj)));
-        // System.out.println(Arrays.toString(pf.getPokemonSprite(oj)));
+        System.out.println(pf.getPokemonStats(oj));
+        System.out.println(pf.getPokemonMoves(oj));
         // System.out.println(pf.getPokemonType(oj));
-        // System.out.println(pf.getPokemonStats(oj));
+        // System.out.println(Arrays.toString(pf.getPokemonSprite(oj)));
     }
 
     public final OkHttpClient client = new OkHttpClient();
