@@ -17,11 +17,17 @@ public class pokemonFetcher {
         JSONObject oj = pf.getPokemon("charmander");
         System.out.println(pf.getPokemonName(oj));
 
+<<<<<<< HEAD
         //System.out.println(pf.getPokemonMoves(oj));
         // System.out.println(pf.getPokemonType(oj));
         // System.out.println(Arrays.toString(pf.getPokemonSprite(oj)));
         // System.out.println(pf.getPokemonType(oj));
         System.out.println(pf.getPokemonStats(oj));
+=======
+        System.out.println(pf.getPokemonMoves(oj));
+        // System.out.println(pf.getPokemonType(oj));
+        // System.out.println(Arrays.toString(pf.getPokemonSprite(oj)));
+>>>>>>> 7ebd430 (stash)
     }
 
     public final OkHttpClient client = new OkHttpClient();
