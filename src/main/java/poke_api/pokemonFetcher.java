@@ -14,20 +14,13 @@ public class pokemonFetcher {
 
     public static void main(String[] args) throws IOException {
         pokemonFetcher pf = new pokemonFetcher();
-        JSONObject oj = pf.getPokemon("charmander");
-        System.out.println(pf.getPokemonName(oj));
+        JSONObject oj = pf.getPokemon("charizard");
+        // System.out.println(pf.getPokemonName(oj));
 
-<<<<<<< HEAD
-        //System.out.println(pf.getPokemonMoves(oj));
-        // System.out.println(pf.getPokemonType(oj));
-        // System.out.println(Arrays.toString(pf.getPokemonSprite(oj)));
-        // System.out.println(pf.getPokemonType(oj));
         System.out.println(pf.getPokemonStats(oj));
-=======
         System.out.println(pf.getPokemonMoves(oj));
         // System.out.println(pf.getPokemonType(oj));
         // System.out.println(Arrays.toString(pf.getPokemonSprite(oj)));
->>>>>>> 7ebd430 (stash)
     }
 
     public final OkHttpClient client = new OkHttpClient();
@@ -107,11 +100,14 @@ public class pokemonFetcher {
         return move;
     }
 
-    public String getPokemonType(JSONObject pokemon) {
+    public String[] getPokemonType(JSONObject pokemon) {
         JSONArray t = pokemon.getJSONArray("types");
-        JSONObject type = t.getJSONObject(0);
-         JSONObject typeObject = type.getJSONObject("type");
-         return typeObject.getString("name");
+        String[] types = new String[t.length()];
+        
+        for (int i = 0; i < t.length(); i++) {
+            types[i] = t.getJSONObject(i).getJSONObject("type").getString("name");
+        }
+        return types;
     }
 
     public String[] getPokemonSprite(JSONObject pokemon) {
