@@ -9,7 +9,6 @@ import java.util.Map;
 public class BattleStats {
 
     private final BaseLevelStats baseStats;
-    private int currentHP;
 
     // Current effective stats in battle
     private final Map<StatType, Float> currentStats = new EnumMap<>(StatType.class);
@@ -22,7 +21,6 @@ public class BattleStats {
 
     public BattleStats(BaseLevelStats baseStats) {
         this.baseStats = baseStats;
-        this.currentHP = baseStats.getHp();
 
         initializeBaseStats();
         resetBattleModifiers(); // sets current stats and stages
@@ -66,42 +64,45 @@ public class BattleStats {
 
     // -------------------- Recalculation -------------------- //
 
-    /** Recalculates a stat based on its stage */
+    /** Recalculates a stat based on its stage. While all these calculations
+     * are relatively simple and straightforward, dividing them ensures that we
+     * cans easily alter how stats are calcualte down the road*/
     private void recalcStat(StatType stat, int stage) {
         float baseValue = baseStatValues.get(stat);
 
         // Accuracy and Evasion are multipliers only, others scale with base value
-        if (stat == StatType.ACCURACY || stat == StatType.EVASION) {
-            currentStats.put(stat, stageMultiplier(stage));
-        } else {
-            currentStats.put(stat, baseValue * stageMultiplier(stage));
+        if (stat == StatType.ACCURACY)  {
+            currentStats.put(stat, accuracyStageMultiplier(stage));
+        } else if (stat == StatType.EVASION) {
+            currentStats.put(stat, evasionStageMultiplier(stage));
+        }
+        else {
+            currentStats.put(stat, baseValue * statStageMultiplier(stage));
         }
     }
 
     /** Converts stage (-6 to +6) to multiplier */
-    private float stageMultiplier(int stage) {
+    private float statStageMultiplier(int stage) {
         if (stage >= 0) return (2f + stage) / 2f;
-        else return 2f / (2 - stage);
+        else return 2f / (2f - stage);
     }
+
+    private float accuracyStageMultiplier(int stage) {
+        if (stage >= 0) return (3f + stage) / 3f;
+        else return 3f / (3f - stage);
+    }
+
+    private float evasionStageMultiplier(int stage) {
+        if (stage >= 0) return 3f / (3f + stage);
+        else return (3f - stage) / 3f;
+    }
+
 
     /** Clamp stage to [-6, 6] */
     private int clampStage(int stage) {
         return Math.max(-6, Math.min(6, stage));
     }
 
-    // -------------------- HP Methods -------------------- //
-
-    public int getCurrentHP() {
-        return currentHP;
-    }
-
-    public void takeDamage(int amount) {
-        currentHP = Math.max(0, currentHP - amount);
-    }
-
-    public void heal(int amount) {
-        currentHP = Math.min(baseStats.getHp(), currentHP + amount);
-    }
 
     // -------------------- Current Stat Access -------------------- //
 

@@ -14,6 +14,7 @@ public class Pokemon {
     /** Entity representing Pokemon as seen in the Pokemon video game series.
      */
 	private final String name;
+    private int currentHP;
     private BaseLevelStats baseStats;
     private final List<String> types;
     private Move[] moves;
@@ -24,6 +25,19 @@ public class Pokemon {
         this.types = types;
         this.moves = new Move[4];
         this.baseStats = stats;
+        this.currentHP = stats.getMaxHp();
+    }
+
+    public int getCurrentHP() {
+        return currentHP;
+    }
+
+    public void takeDamage(int amount) {
+        currentHP = Math.max(0, currentHP - amount);
+    }
+
+    public void heal(int amount) {
+        currentHP = Math.min(baseStats.getMaxHp(), currentHP + amount);
     }
 
     public BattleStats createBattleStats() {
