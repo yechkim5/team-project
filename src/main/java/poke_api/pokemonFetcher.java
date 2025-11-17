@@ -24,9 +24,9 @@ public class pokemonFetcher {
         System.out.println(pf.getPokemonStats(oj));
     }
 
-    private final OkHttpClient client = new OkHttpClient();
+    public final OkHttpClient client = new OkHttpClient();
 
-    private JSONObject getPokemon(String id) throws IOException {
+    public JSONObject getPokemon(String id) {
         // Private class just to get the raw pokemon response object
         // other classes will use this JSON object to get more information
 
@@ -45,10 +45,11 @@ public class pokemonFetcher {
             return json;
 
 
-    } catch (IOException e) {
-        throw new IOException(e);
+        } catch (IOException e) {
+            System.out.println("IOexception" + e);
+            return new JSONObject();
+            }
         }
-    }
 
     public String getPokemonName(JSONObject pokemon) {
         return pokemon.getString("name");
@@ -92,6 +93,8 @@ public class pokemonFetcher {
 
                 move.put(name, move_info);
 
+            } catch (IOException e1){
+                System.out.println("IOexception" + e1);
             }
 
         }
