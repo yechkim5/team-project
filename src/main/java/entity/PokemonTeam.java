@@ -14,6 +14,9 @@ public class PokemonTeam {
     //change the pokemon team with the additional enforcement of the final keyword
     private final List<Pokemon> pokemons = new ArrayList<>();
 
+    public <E> PokemonTeam(ArrayList<E> es) {
+    }
+
     public void addPokemon(Pokemon pokemon) {
         if (pokemons.size() >= MAX_TEAM_SIZE) {
             throw new IllegalArgumentException("A team can only have 6 Pokémon.");
