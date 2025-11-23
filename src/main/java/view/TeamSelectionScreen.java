@@ -85,10 +85,10 @@ public class TeamSelectionScreen extends JPanel {
                         JOptionPane.WARNING_MESSAGE);
             }
         });
-        bottomLeft.add(addMoveButton);
+        bottomLeft.add(addToTeamButton);
         bottomLeft.add(Box.createVerticalStrut(10));
 
-        bottomLeft.add(addToTeamButton);
+        bottomLeft.add(addMoveButton);
 
         leftColumn.setPreferredSize(new Dimension(320,0));
 
