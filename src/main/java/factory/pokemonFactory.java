@@ -1,6 +1,7 @@
 package factory;
 import java.util.*;
 
+import entity.builder.MoveBuilder;
 import org.json.JSONObject;
 
 import entity.*;
@@ -49,7 +50,11 @@ public class pokemonFactory {
         String power = (String) moveMap.get(i).get("power");
         int pp = (int) moveMap.get(i).get("pp");
         String type = (String) moveMap.get(i).get("type");
-        Move move = new Move(name, type, description, power, pp);
+        Move move = new MoveBuilder()
+                    .setMoveName(name)
+                    .setMoveType(type)
+                    .setPp(pp)
+                    .setMoveDescription(description).createMove();
     }
 
         
