@@ -1,27 +1,21 @@
 package data_access;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import entity.GameState;
+import org.json.JSONObject;
+import use_case.auto_save.OrgJsonGameStateSerializer;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-/**
- * Auto-saves and loads the entire GameState to/from resources/autosave.json
- */
 public class JsonGameRepository {
 
     private static final String SAVE_FILE = "resources/autosave.json";
-    private static final Gson gson = new GsonBuilder()
-            .setPrettyPrinting()
-            .registerTypeAdapter(GameState.class, new use_case.auto_save.GameStateTypeAdapter())
-            .create();
 
     public static void save(GameState state) {
         try {
             Files.createDirectories(Paths.get("resources"));
-            Files.writeString(Paths.get(SAVE_FILE), gson.toJson(state));
+            JSONObject json = OrgJsonGameStateSerializer.toJson(state);
+            Files.writeString(Paths.get(SAVE_FILE), json.toString(4)); // pretty-print
         } catch (Exception e) {
             System.err.println("Auto-save failed: " + e.getMessage());
         }
@@ -29,8 +23,9 @@ public class JsonGameRepository {
 
     public static GameState load() {
         try {
-            String json = Files.readString(Paths.get(SAVE_FILE));
-            return gson.fromJson(json, GameState.class);
+            String content = Files.readString(Paths.get(SAVE_FILE));
+            JSONObject json = new JSONObject(content);
+            return OrgJsonGameStateSerializer.fromJson(json);
         } catch (Exception e) {
             return null; // no save exists
         }

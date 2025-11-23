@@ -13,7 +13,7 @@ be tracked through the battle class as opposed to the Pokemon instance individua
 public class Pokemon {
     /** Entity representing Pokemon as seen in the Pokemon video game series.
      */
-    private final String name;
+	private final String name;
     private int currentHP;
     private BaseLevelStats baseStats;
     private final List<String> types;

@@ -14,20 +14,20 @@ public class pokemonFetcher {
 
     public static void main(String[] args) throws IOException {
         pokemonFetcher pf = new pokemonFetcher();
-        JSONObject oj = pf.getPokemon("charmander");
-        String name = pf.getPokemonName(oj);
-        //System.out.println(name);
+        JSONObject oj = pf.getPokemon("charizard");
+        // System.out.println(pf.getPokemonName(oj));
 
-        //System.out.println(pf.getPokemonMoves(oj));
-        System.out.println(pf.getPokemonType(oj));
-        System.out.println(Arrays.toString(pf.getPokemonSprite(oj)));
+        System.out.println(pf.getPokemonStats(oj));
+        System.out.println(pf.getPokemonMoves(oj));
+        // System.out.println(pf.getPokemonType(oj));
+        // System.out.println(Arrays.toString(pf.getPokemonSprite(oj)));
     }
 
-    private final OkHttpClient client = new OkHttpClient();
+    public final OkHttpClient client = new OkHttpClient();
 
-    private JSONObject getPokemon(String id) throws IOException {
+    public JSONObject getPokemon(String id) {
         // Private class just to get the raw pokemon response object
-        // other classes will use the JSON object to get more information
+        // other classes will use this JSON object to get more information
 
         Request request = new Request.Builder()
                 .url("https://pokeapi.co/api/v2/pokemon/" + id)
@@ -44,10 +44,11 @@ public class pokemonFetcher {
             return json;
 
 
-    } catch (IOException e) {
-        throw new IOException(e);
+        } catch (IOException e) {
+            System.out.println("IOexception" + e);
+            return new JSONObject();
+            }
         }
-    }
 
     public String getPokemonName(JSONObject pokemon) {
         return pokemon.getString("name");
@@ -91,17 +92,22 @@ public class pokemonFetcher {
 
                 move.put(name, move_info);
 
+            } catch (IOException e1){
+                System.out.println("IOexception" + e1);
             }
 
         }
         return move;
     }
 
-    public String getPokemonType(JSONObject pokemon) {
+    public String[] getPokemonType(JSONObject pokemon) {
         JSONArray t = pokemon.getJSONArray("types");
-        JSONObject type = t.getJSONObject(0);
-        JSONObject typeObject = type.getJSONObject("type");
-        return typeObject.getString("name");
+        String[] types = new String[t.length()];
+        
+        for (int i = 0; i < t.length(); i++) {
+            types[i] = t.getJSONObject(i).getJSONObject("type").getString("name");
+        }
+        return types;
     }
 
     public String[] getPokemonSprite(JSONObject pokemon) {
@@ -111,5 +117,25 @@ public class pokemonFetcher {
         String back = spriteObj.getString("back_default");
         return new String[] {front, back};
     }
+
+    public Map<String, Object> getPokemonStats(JSONObject pokemon) {
+        HashMap<String, Object> stats = new HashMap<>();
+        JSONArray statsArray = pokemon.getJSONArray("stats");
+
+        for (int i = 0; i < statsArray.length(); i++) {
+            JSONObject stat = statsArray.getJSONObject(i);
+            int baseStat = stat.getInt("base_stat");
+            
+            JSONObject hpObject = stat.getJSONObject("stat");
+            String statName = hpObject.getString("name");
+
+            stats.put(statName, baseStat);
+
+        }
+
+        return stats;
+
+    }
+
 }
 
