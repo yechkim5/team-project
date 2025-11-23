@@ -1,5 +1,6 @@
 package entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /* By the lab of week eleven, the Pokemon class should be entirely complete so
@@ -22,10 +23,10 @@ public class Pokemon {
     public Pokemon(String name, BaseLevelStats stats,
                    List<String> types) {
         this.name = name;
-        this.types = types;
         this.moves = new Move[4];
         this.baseStats = stats;
         this.currentHP = stats.getMaxHp();
+        this.types = types;
     }
 
     public int getCurrentHP() {
