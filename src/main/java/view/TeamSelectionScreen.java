@@ -7,6 +7,10 @@ import factory.pokemonFactory;
 import interface_adapter.select_team.SelectTeamController;
 import interface_adapter.select_team.SelectTeamViewModel;
 
+//import for music
+import music.MusicPlayer;
+import music.Mp3MusicPlayer;
+
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
@@ -46,6 +50,9 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
     private final JButton finalizeTeamButton;
     private final JScrollPane teamScroll;
 
+    //music player
+    private final MusicPlayer musicPlayer;
+
     // Data storage (view layer only - for UI state)
     private final Map<String, Pokemon> pokemonCache = new HashMap<>();
     private Pokemon currentlySelectedPokemon = null;
@@ -62,6 +69,10 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         this.controller = controller;
         this.viewModel = viewModel;
         this.currentPlayerNumber = viewModel.getPlayerNumber();
+
+        //music player
+        this.musicPlayer = new Mp3MusicPlayer("main/java/Music/BattleMusic.mp3");
+
         
         // Listen to view model changes
         viewModel.addPropertyChangeListener(this);
@@ -110,7 +121,10 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         finalizeTeamButton = new JButton("Finalize Team");
         finalizeTeamButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         finalizeTeamButton.setEnabled(false);
-        finalizeTeamButton.addActionListener(e -> finalizeTeam());
+        finalizeTeamButton.addActionListener(e -> {
+            musicPlayer.playMusic();  // start music
+            finalizeTeam();           // existing logic
+        });
 
         JButton removeMoveButton = new JButton("Remove Selected Move");
         removeMoveButton.setAlignmentX(Component.CENTER_ALIGNMENT);
