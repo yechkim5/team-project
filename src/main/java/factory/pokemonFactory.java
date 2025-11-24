@@ -1,60 +1,89 @@
 package factory;
-import java.util.*;
-
-import org.json.JSONObject;
 
 import entity.*;
-import poke_api.*;
+import poke_api.pokemonFetcher;
+import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Factory that creates a real Pokemon from the PokeAPI.
+ * Usage: new pokemonFactory("pikachu").getPokemon()
+ */
 public class pokemonFactory {
-    
-    
-    String pokeid;
-        pokemonFetcher pf;
-        JSONObject oj;
 
-    public pokemonFactory(String pokeid){
-        this.pokeid = pokeid;
-        this.pf = new pokemonFetcher();
-        this.oj = pf.getPokemon(pokeid);
-        
+    private final String pokeid;           // "pikachu", "25", etc.
+    private final pokemonFetcher fetcher;
+    private final JSONObject pokemonData;  // Raw JSON from PokeAPI
+
+    public pokemonFactory(String pokeid) {
+        this.pokeid = pokeid.toLowerCase();  // API is case-insensitive
+        this.fetcher = new pokemonFetcher();
+        this.pokemonData = fetcher.getPokemon(pokeid);
     }
 
+    /**
+     * Creates and returns a fully built Pokemon with stats + 4 moves.
+     */
     public Pokemon getPokemon() {
-        
-        String name = pf.getPokemonName(oj);
-        String types = pf.getPokemonType(oj);
+        String name = fetcher.getPokemonName(pokemonData);
+        List<String> types = fetcher.getPokemonType(pokemonData);  // Fixed: returns List
 
-        Map<String, Integer> stats = pf.getPokemonStats(oj);
-        int hp = stats.get("hp");
-        int attack = stats.get("attack");
-        int defense = stats.get("defense");
-        int specialAttack = stats.get("specialAttack");
-        int specialDefense = stats.get("specialDefense");
-        int speed = stats.get("speed");
+        Map<String, Integer> stats = fetcher.getPokemonStats(pokemonData);
+        BaseLevelStats baseStats = new BaseLevelStats.Builder()
+                .maxHp(stats.get("hp"))
+                .attack(stats.get("attack"))
+                .defense(stats.get("defense"))
+                .specialAttack(stats.get("specialAttack"))
+                .specialDefense(stats.get("specialDefense"))
+                .speed(stats.get("speed"))
+                .build();
 
-        return new Pokemon(name, hp, attack, defense, specialAttack, specialDefense, speed, types, movesFactory());     
+        List<Move> moves = movesFactory();
 
-        
+        Pokemon pokemon = new Pokemon(name, baseStats, types);
+        pokemon.setMoves(moves.toArray(new Move[0]));  // Set the 4 moves
+        return pokemon;
     }
 
-    public List<Move> movesFactory(){
-    HashMap<String, HashMap<String, Object>> moveMap = pf.getPokemonMoves(oj);
-    ArrayList<Move> moveList = new ArrayList<>();
+    /**
+     * Gets up to 4 real moves from the API.
+     * Returns a List<Move> with actual data.
+     */
+    public List<Move> movesFactory() {
+        HashMap<String, HashMap<String, Object>> moveMap = fetcher.getPokemonMoves(pokemonData);
+        List<Move> moveList = new ArrayList<>();
 
-    ArrayList<String> moves = new ArrayList<>(moveMap.keySet());
-    for (int i = 0; i < moves.size(); i++){
-        String name = moves.get(i);
-        String description = (String) moveMap.get(i).get("description");
-        String power = (String) moveMap.get(i).get("power");
-        int pp = (int) moveMap.get(i).get("pp");
-        String type = (String) moveMap.get(i).get("type");
-        Move move = new Move(name, type, description, power, pp);
+        // Limit to first 4 moves (most Pokémon have way more)
+        int count = 0;
+        for (String moveName : moveMap.keySet()) {
+            if (count >= 4) break;
+
+            HashMap<String, Object> info = moveMap.get(moveName);
+
+            String name = moveName;
+            String type = (String) info.get("type");
+            Integer powerObj = (Integer) info.get("power");
+            String power = powerObj != null ? powerObj.toString() : "—";
+            int pp = (Integer) info.get("pp");
+            String description = info.containsKey("description")
+                    ? (String) info.get("description")
+                    : "No description available.";
+
+            // Handle accuracy: null means always hits
+            Integer accuracy = info.get("accuracy") instanceof Integer
+                    ? (Integer) info.get("accuracy")
+                    : 100;
+
+            Move move = new Move(name, type, pp, description, "physical", accuracy);
+            // You may want to detect physical/special later
+            moveList.add(move);
+            count++;
+        }
+
+        return moveList;
     }
-
-        
-    }
-
-    
-    
 }

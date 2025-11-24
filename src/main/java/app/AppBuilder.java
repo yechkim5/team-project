@@ -1,13 +1,3 @@
-package app;
-
-import entity.Trainer;
-import interface_adapter.controller.SaveProgressController;
-import view.BattlePanel;
-import view.PokemonList;
-
-import javax.swing.*;
-
-
 // In your main GUI class (or wherever you set up the buttons):
 
 // 1. Create the player ONCE (your single MP3 file)
@@ -25,6 +15,18 @@ import javax.swing.*;
 //System.exit(0);   // if you really want to close the whole app
 //});
 
+
+package app;
+
+import entity.Trainer;
+import interface_adapter.controller.SaveProgressController;
+import use_case.SaveProgress;
+import use_case.SaveProgressDataAccessInterface;
+import view.BattlePanel;
+import view.TeamSelectionScreen;  // Updated to use your main team selection panel
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Central application builder – wires all layers together using Clean Architecture.
@@ -61,53 +63,79 @@ public class AppBuilder {
         // ===================================================================
         // 4. CREATE GAME STATE
         // ===================================================================
-        Trainer playerTrainer = new Trainer("Player");  // will be filled in team selection
+        Trainer player1Trainer = new Trainer("Player1");  // Player 1's team
+        Trainer player2Trainer = new Trainer("Player2");  // Player 2's team
         int startingTowerLevel = 1;
         BattleState battleState = new BattleState(startingTowerLevel);
 
         // ===================================================================
         // 5. START WITH POKÉMON LIST (Team Selection – Use Case 1)
         // ===================================================================
-        PokemonList pokemonListPanel = new PokemonList(
-                playerTrainer,
-                () -> showBattleScreen(frame, playerTrainer, battleState, saveController)
-        );
+        startTeamSelection(frame, player1Trainer, player2Trainer, battleState, saveController);
+    }
 
-        frame.setContentPane(pokemonListPanel);
-        frame.setVisible(true);
+    /**
+     * Handles team selection for both players in PvP mode.
+     * Starts with Player 1, then switches to Player 2 when done.
+     */
+    private static void startTeamSelection(JFrame frame,
+                                           Trainer player1Trainer,
+                                           Trainer player2Trainer,
+                                           BattleState battleState,
+                                           SaveProgressController saveController) {
+
+        // Create the team selection panel – it handles picking for one player at a time
+        TeamSelectionScreen teamPanel = new TeamSelectionScreen();  // Your main team selection panel
+
+        // PvP Switching Logic: Start with Player 1
+        teamPanel.setPlayer(GameState.Player.PLAYER1);  // Switch title to Player 1
+        frame.setContentPane(teamPanel);
+        frame.revalidate();
+        frame.repaint();
+
+        // Add a "Done" button to finish one player's team and switch to the next
+        JButton doneButton = new JButton("Done Selecting Team");
+        doneButton.addActionListener(e -> {
+            // Save the current player's team
+            Trainer currentTrainer = teamPanel.getActivePlayer() == GameState.Player.PLAYER1 ? player1Trainer : player2Trainer;
+            // Update currentTrainer with selected Pokémon – add logic here to get team from panel
+            // e.g., currentTrainer.setTeam(teamPanel.getSelectedTeam());
+
+            // Switch to next player or start battle
+            if (teamPanel.getActivePlayer() == GameState.Player.PLAYER1) {
+                // Switch to Player 2
+                teamPanel.setPlayer(GameState.Player.PLAYER2);
+                frame.revalidate();
+            } else {
+                // Both players done – start battle
+                showBattleScreen(frame, player1Trainer, player2Trainer, battleState, saveController);
+            }
+        });
+
+        // Add the Done button to the panel (adjust location based on your layout)
+        teamPanel.add(doneButton, BorderLayout.SOUTH);
     }
 
     /**
      * Called when user clicks "Start Battle" – switches to Panel 3
      */
     private static void showBattleScreen(JFrame frame,
-                                         Trainer playerTrainer,
+                                         Trainer player1Trainer,
+                                         Trainer player2Trainer,
                                          BattleState battleState,
                                          SaveProgressController saveController) {
 
-        // Generate CPU opponent (you can replace with real AI later)
-        Trainer cpuTrainer = generateCpuTrainer();
-
-        // Create Panel 3 – this is where the Save button lives
+        // Create Panel 3 – this is where the battle happens (no more CPU – PvP only)
         BattlePanel battlePanel = new BattlePanel(
-                playerTrainer,
-                cpuTrainer,
+                player1Trainer,
+                player2Trainer,  // ← Player 2 instead of CPU
                 battleState,
                 saveController   // ← INJECTED HERE
+                // other controllers...
         );
 
         frame.setContentPane(battlePanel);
         frame.revalidate();
         frame.repaint();
-    }
-
-    /**
-     * Temporary CPU team generator – replace with real logic
-     */
-    private static Trainer generateCpuTrainer() {
-        Trainer cpu = new Trainer("Team Rocket Grunt");
-        // Add 5 random Pokémon – reuse your pokemonFetcher
-        // (Implement PokemonCreator.fromRandom() or similar)
-        return cpu;
     }
 }
