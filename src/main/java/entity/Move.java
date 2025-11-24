@@ -58,4 +58,9 @@ public abstract class Move {
     public String getMoveClass() {
         return moveClass;
     }
+
+    public Move(String moveName, String moveType, int maxPp, String moveDescription, String moveClass, int moveAccuracy, int currentPp) {
+        this(moveName, moveType, maxPp, moveDescription, moveClass, moveAccuracy);
+        this.currentPp = currentPp;
+    }
 }

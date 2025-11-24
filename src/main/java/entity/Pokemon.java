@@ -59,4 +59,6 @@ public class Pokemon {
     public Move[] getMoves() {
         return moves;
     }
+
+    public void setMoves(Move[] moves) { this.moves = moves; }
 }

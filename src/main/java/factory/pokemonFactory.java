@@ -37,8 +37,8 @@ public class pokemonFactory {
                 .maxHp(stats.get("hp"))
                 .attack(stats.get("attack"))
                 .defense(stats.get("defense"))
-                .specialAttack(stats.get("specialAttack"))
-                .specialDefense(stats.get("specialDefense"))
+                .specialAttack(stats.get("special-attack"))
+                .specialDefense(stats.get("special-defense"))
                 .speed(stats.get("speed"))
                 .build();
 

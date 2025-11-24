@@ -24,10 +24,14 @@ public class JsonGameRepository {
     public static GameState load() {
         try {
             String content = Files.readString(Paths.get(SAVE_FILE));
+            if (content.isBlank()) {
+                return null;
+            }
             JSONObject json = new JSONObject(content);
             return OrgJsonGameStateSerializer.fromJson(json);
         } catch (Exception e) {
-            return null; // no save exists
+            System.err.println("Auto-load failed: " + e.getMessage());
+            return null; // no save exists or corrupt
         }
     }
 }
