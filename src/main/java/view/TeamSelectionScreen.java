@@ -100,7 +100,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         // Selected moves list
         JList<String> selectedMovesList = new JList<>(selectedMovesModel);
         JScrollPane selectedMovesScroll = new JScrollPane(selectedMovesList);
-        selectedMovesScroll.setBorder(BorderFactory.createTitledBorder("Selected Moves (Max 10)"));
+        selectedMovesScroll.setBorder(BorderFactory.createTitledBorder("Selected Moves (Max 4)"));
         selectedMovesScroll.setPreferredSize(new Dimension(300, 200));
 
         addToTeamButton = new JButton("Add To Team");
@@ -220,10 +220,10 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
             return;
         }
 
-        if (currentlySelectedMoves.size() >= 10) {
+        if (currentlySelectedMoves.size() >= 4) {
             JOptionPane.showMessageDialog(
                 this,
-                "You can't select more than 10 Moves!",
+                "You can't select more than 4 Moves!",
                 "Move Limit",
                 JOptionPane.WARNING_MESSAGE
             );
