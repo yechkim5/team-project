@@ -1,34 +1,45 @@
 package entity;
 
-/*
-Examples of good software design:
-    -Move is an abstract class to make implementation of various
-    different move types easier and also to prevent Pokemon class from relying
-    directly on concrete lower subclass, enforcing DIP.
+import entity.moveyStuff.MoveBehaviour;
 
-    -The only time that move can change is when it is used by the Pokemon actor
-    to account for the number of times it has been used. This is to satisfy the SRP.
+import java.util.List;
 
-
- */
-public abstract class Move {
+public class Move {
     private final String moveName;
+    private final int movePower;
     private final String moveDescription;
     private final String moveType;
     private final int maxPp;
     private int currentPp;
     private final int moveAccuracy;
-    private final String moveClass;
+    private final List<MoveBehaviour> moveBehaviours;
 
     //Will make this builder for ease of instantiation using API
-    public Move(String moveName, String moveType, int pp, String moveDescription, String moveClass, int moveAccuracy) {
+    public Move(String moveName, String moveType, int pp, String moveDescription,
+                String moveClass, int moveAccuracy,  List<MoveBehaviour> moveBehaviours,
+                int movePower) {
         this.moveName = moveName;
         this.moveDescription = moveDescription;
-        this.moveClass = moveClass;
         this.moveType = moveType;
         this.maxPp = pp;
         this.currentPp = maxPp;
         this.moveAccuracy = moveAccuracy;
+        this.moveBehaviours = moveBehaviours;
+        this.movePower = movePower;
+    }
+
+    public void useMove(PokemonTeam userTeam, PokemonTeam targetTeam,
+                        BattleStats userStats, BattleStats targetStats) {
+
+        for (MoveBehaviour behavior : moveBehaviours) {
+            behavior.execute(this, userTeam, targetTeam, userStats, targetStats);
+        }
+        currentPp -= 1;
+
+    }
+
+    public int getMovePower() {
+        return this.movePower;
     }
 
     public int getMoveAccuracy() {
@@ -64,3 +75,4 @@ public abstract class Move {
         this.currentPp = currentPp;
     }
 }
+

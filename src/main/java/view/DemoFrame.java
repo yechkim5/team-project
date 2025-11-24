@@ -1,6 +1,11 @@
 package view;
 
 import view.demo_entity.DemoPokemon;
+import use_case.select_team.SelectTeamInteractor;
+import use_case.select_team.SelectTeamOutputBoundary;
+import interface_adapter.select_team.SelectTeamController;
+import interface_adapter.select_team.SelectTeamPresenter;
+import interface_adapter.select_team.SelectTeamViewModel;
 
 import javax.swing.*;
 
@@ -16,7 +21,7 @@ public class DemoFrame extends JFrame {
     public DemoFrame(Screen screen) {
         setTitle("Pokemon UI Demo");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(900, 600);
+        setSize(screen == Screen.TEAM_SELECT ? 1200 : 900, screen == Screen.TEAM_SELECT ? 700 : 600);
         setLocationRelativeTo(null);
 
         DemoPokemon pikachu = DemoData.createDemoPokemon();
@@ -24,7 +29,12 @@ public class DemoFrame extends JFrame {
 
        switch (screen) {
            case TEAM_SELECT:
-               setContentPane(new TeamSelectionScreen());
+               // Wire up Clean Architecture dependencies
+               SelectTeamViewModel viewModel = new SelectTeamViewModel();
+               SelectTeamOutputBoundary presenter = new SelectTeamPresenter(viewModel);
+               SelectTeamInteractor interactor = new SelectTeamInteractor(presenter);
+               SelectTeamController controller = new SelectTeamController(interactor);
+               setContentPane(new TeamSelectionScreen(controller, viewModel));
                break;
 
            case DETAIL:
