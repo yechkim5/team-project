@@ -31,39 +31,41 @@ public class SelectTeamPresenter implements SelectTeamOutputBoundary {
 
     @Override
     public void prepareSuccessView(SelectTeamOutputData outputData) {
-        viewModel.setTeam(outputData.getTeam());
-        viewModel.setMessage(outputData.getMessage());
+        // Set all properties first (these will fire individual property change events)
         viewModel.setSuccess(true);
         viewModel.setPlayerNumber(outputData.getPlayerNumber());
         viewModel.setTeamSize(outputData.getTeamSize());
         viewModel.setAddedPokemon(outputData.getAddedPokemon());
-        viewModel.firePropertyChanged();
+        // Set team and message last - these fire property change events
+        // Don't call firePropertyChanged() as setters already fire events
+        viewModel.setTeam(outputData.getTeam());
+        viewModel.setMessage(outputData.getMessage());
     }
 
     @Override
     public void prepareFailView(String error) {
-        viewModel.setMessage(error);
         viewModel.setSuccess(false);
-        viewModel.firePropertyChanged();
+        // Only set message - it will fire property change event
+        viewModel.setMessage(error);
     }
 
     @Override
     public void prepareTeamFinalizedView(SelectTeamOutputData outputData) {
-        viewModel.setTeam(outputData.getTeam());
-        viewModel.setMessage(outputData.getMessage());
         viewModel.setSuccess(true);
         viewModel.setPlayerNumber(outputData.getPlayerNumber());
         viewModel.setTeamFinalized(true);
         viewModel.setReadyForNextPlayer(outputData.isReadyForNextPlayer());
-        viewModel.firePropertyChanged();
+        // Set team and message last - these fire property change events
+        viewModel.setTeam(outputData.getTeam());
+        viewModel.setMessage(outputData.getMessage());
     }
 
     @Override
     public void prepareNextPlayerView(int playerNumber) {
         viewModel.setPlayerNumber(playerNumber);
         viewModel.setTeamFinalized(false);
+        // Only set message - it will fire property change event
         viewModel.setMessage("Player " + playerNumber + " - Select your Pokemon");
-        viewModel.firePropertyChanged();
     }
 }
 

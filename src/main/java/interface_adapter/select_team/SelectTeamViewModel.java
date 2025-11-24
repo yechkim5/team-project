@@ -25,6 +25,7 @@ public class SelectTeamViewModel {
     private Pokemon addedPokemon;
     private boolean teamFinalized = false;
     private boolean readyForNextPlayer = false;
+    private int teamUpdateCounter = 0; // Counter to ensure property change always fires
 
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
 
@@ -47,9 +48,12 @@ public class SelectTeamViewModel {
     }
 
     public void setTeam(PokemonTeam team) {
-        PokemonTeam oldTeam = this.team;
         this.team = team;
-        support.firePropertyChange(TEAM_PROPERTY, oldTeam, team);
+        // Always fire property change by using a counter
+        // This ensures UI updates even when the same PokemonTeam object is modified
+        int oldCounter = teamUpdateCounter;
+        teamUpdateCounter++; // Increment counter to ensure property change fires
+        support.firePropertyChange(TEAM_PROPERTY, oldCounter, teamUpdateCounter);
     }
 
     public String getMessage() {

@@ -319,9 +319,14 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         detailPanel.showPokemon((Pokemon) null);
         finalizeTeamButton.setEnabled(false);
         
+        // Reset message tracking
+        lastShownMessage = "";
+        
         // Get the new player's team
         controller.getCurrentTeam(currentPlayerNumber);
     }
+
+    private String lastShownMessage = ""; // Track last shown message to prevent duplicates
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
@@ -329,7 +334,10 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
             updateTeamDisplay(viewModel.getTeam());
         } else if (evt.getPropertyName().equals(SelectTeamViewModel.MESSAGE_PROPERTY)) {
             String message = viewModel.getMessage();
-            if (message != null && !message.isEmpty()) {
+            // Only show popup if message is not null, not empty, and different from last shown
+            if (message != null && !message.isEmpty() && !message.equals(lastShownMessage)) {
+                lastShownMessage = message; // Track this message
+                
                 if (viewModel.isSuccess()) {
                     JOptionPane.showMessageDialog(
                         this,
@@ -357,8 +365,9 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
                 }
             }
             
-            // Check if ready for next player
-            if (viewModel.isReadyForNextPlayer() && viewModel.getPlayerNumber() == 1) {
+            // Check if ready for next player (only check once, not on every message change)
+            if (viewModel.isReadyForNextPlayer() && viewModel.getPlayerNumber() == 1 && 
+                viewModel.isTeamFinalized()) {
                 int response = JOptionPane.showConfirmDialog(
                     this,
                     "Player 1's team is complete! Ready for Player 2?",
