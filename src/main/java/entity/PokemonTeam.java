@@ -5,11 +5,11 @@ import java.util.Collections;
 import java.util.List;
 
 public class PokemonTeam {
-    //Suggestion from ChatGPT makes sense as these makes changing team size
+    //Suggestion from ChatGPT makes sense as this makes changing team size
     //later on significantly easier
     private static final int MAX_TEAM_SIZE = 5;
 
-    //private keyword is for encapsulation. Initially I was suprised that the
+    //private keyword is for encapsulation. Initially I was surprised that the
     //final keyword was used but given that we can mutate lists we can still
     //change the pokemon team with the additional enforcement of the final keyword
     private final List<Pokemon> pokemons = new ArrayList<>();

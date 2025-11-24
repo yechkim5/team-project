@@ -3,15 +3,72 @@ package entity.moveyStuff;
 import entity.BattleStats;
 import entity.Move;
 import entity.Pokemon;
+import entity.PokemonTeam;
 
-/* This is an interface that will be used as the wellspring for a strategy
+/* This is an interface that will be used for a strategy
 design pattern. The number of possible behaviours will be around 14 to account
-for all the differnt types listed in the API. See move class for greater detail.
+for all the differnt types listed in the API. See below for greater detail.
+ */
+
+/*
+    Within Pokemon there are three major move classifications: Special, Physical, and Status.
+The difference between these classifications comes down to what stats are used to
+calculate the effect the move has. For example, a status move does no damage
+and so damage and defense against damage is not considered when considering its effect.
+    Additionally, there are various hybrid moves that combine properties from two of
+the major move types above like a move that damages a target and lowers one of their
+stats; however, these moves are all still said to belong to a single classification
+    Within the Pokemon API, every single move has one these three classifications:
+1 - status, 2 - physical, and 3 - special. Additionally, there exist 14
+categories representing every single possible combination of effects that a move
+can have on a targeted Pokemon as well as the user's Pokemon. The categories
+are defined as follows:
+    -damage: Any move that inflicts damage
+    -ailment: A move that inflicts status effect without damage
+    -net-good-stats: Affects stats of in play Pokemon in way that is beneficial
+                     to the user. This could be raising user Pokemon stats
+                     or lowering target Pokemon stats.
+    -heal: A move that heals the user. In other words, a move that adds
+           some integer value to the user pokemons health attribute.
+    -damage+ailment: A move that inflicts both status ailment and damage
+    -swagger: Inflicts status ailment but also raises stats of target.
+              For example, a move that poisons and enemy but also increases their attack.
+    -damage+lower: A move that deals damage and changes target stats. For example,
+                   an attack that deals 20 damage and reduce the target's defense stat
+    -damage+raise: A move that deals damage to a target and changes one or more
+                   of its user's stats. For example, a move that deals damage and
+                   raise or lowers the users attack would fall into this category
+    -damage+heal: A move that deals damage and also heals the user based on the damage
+                  dealt. Think of it as a life leech move.
+    -One-hit KO: Any move that deals damage equivalent to the max HP of its target.
+                 As a side note, it is essential accuracy is taken into account
+                 So that this move cannot always land and trivialize the game.
+    -whole-field-effect: These are moves that effect all Pokemon in play. That said,
+                         we may not implement moves of this category as many of them
+                         require additional game mechanics beyond the scope of this
+                         project.
+    -Effect on one side of the field: Self explanatory, may not include for same
+                                      reasoning as above.
+    -force-switch: Forces target to switch to bench.
+    -unique: Moves that do not fall into any of the above categories. By the
+             Pokemon API, there are supposedly 105 unique moves. This presents
+             an extreme challenge as there is unlikely to be a single pattern
+             that is share by all moves that fall into this category
+
+    As you might have felt by now, there is an overwhelming number of categories
+that any given move can fall into. Even worse, many moves do not fall into any category
+at all and are considered unique. So, I believe the most feasible solution for this problem is to limit
+the available Pokemon to 151 or to only Pokemon only from the first Pokemon game.
+This will consequently limit the number of moves I need to account for to 165 and
+ensure that I am able to implement all unique moves. It will exclude all moves
+within the swagger category, damage+raise category, almost all moves in the haze
+category.
+
  */
 public interface MoveBehaviour {
     void execute(Move move,
-                 Pokemon user,
-                 Pokemon target,
+                 PokemonTeam userTeam,
+                 PokemonTeam targetTeam,
                  BattleStats userBattleStats,
                  BattleStats targetBattleStats);
 }
