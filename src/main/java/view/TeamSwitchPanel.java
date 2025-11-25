@@ -32,11 +32,11 @@ public class TeamSwitchPanel extends JPanel {
         title.setFont(title.getFont().deriveFont(Font.BOLD, 20f));
         add(title, BorderLayout.NORTH);
 
-        // Center: 2x2 grid of buttons (up to 4 Pokémon)
-        JPanel grid = new JPanel(new GridLayout(2, 2, 10, 10));
+        // Center: 2x3 grid of buttons (up to 6 Pokémon)
+        JPanel grid = new JPanel(new GridLayout(2, 3, 10, 10));
         add(grid, BorderLayout.CENTER);
 
-        int maxButtons = Math.min(4, team.length);
+        int maxButtons = Math.min(6, team.length);
 
         for (int i = 0; i < maxButtons; i++) {
             DemoPokemon p = team[i];
@@ -56,7 +56,7 @@ public class TeamSwitchPanel extends JPanel {
         }
 
         // Fill remaining cells if fewer than 4 Pokémon
-        for (int i = maxButtons; i < 4; i++) {
+        for (int i = maxButtons; i < 6; i++) {
             grid.add(new JLabel());
         }
 
