@@ -171,5 +171,28 @@ public class SelectTeamInteractor implements SelectTeamInputBoundary {
     public PokemonTeam getTeam(int playerNumber) {
         return playerTeams.get(playerNumber);
     }
+
+    /**
+     * ONLY FOR SAVE/LOAD — restores a saved team into the interactor
+     * Safe because it only replaces the internal list content, not the map itself
+     */
+    public void restoreTeam(int playerNumber, PokemonTeam savedTeam) {
+        PokemonTeam team = this.playerTeams.get(playerNumber);
+        if (team != null) {
+            team.getClass() // dummy to avoid warning
+                    .getDeclaredFields()[0] // assuming pokemons is first field
+                    .setAccessible(true);
+            try {
+                java.lang.reflect.Field field = team.getClass().getDeclaredField("pokemons");
+                field.setAccessible(true);
+                @SuppressWarnings("unchecked")
+                List<Pokemon> list = (List<Pokemon>) field.get(team);
+                list.clear();
+                list.addAll(savedTeam.getTeam());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
 

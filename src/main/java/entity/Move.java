@@ -2,6 +2,7 @@ package entity;
 
 import entity.moveyStuff.MoveBehaviour;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Move {
@@ -13,6 +14,7 @@ public class Move {
     private int currentPp;
     private final int moveAccuracy;
     private final List<MoveBehaviour> moveBehaviours;
+    private String moveClass;
 
     //Will make this builder for ease of instantiation using API
     public Move(String moveName, String moveType, int pp, String moveDescription,
@@ -26,6 +28,7 @@ public class Move {
         this.moveAccuracy = moveAccuracy;
         this.moveBehaviours = moveBehaviours;
         this.movePower = movePower;
+        this.moveClass = moveClass;
     }
 
     public void useMove(PokemonTeam userTeam, PokemonTeam targetTeam,
@@ -64,6 +67,22 @@ public class Move {
 
     public int getCurrentPp() {
         return currentPp;
+    }
+
+    public String getMoveClass() {
+        return moveClass;
+    }
+
+    public Move(String moveName, String moveType, int maxPp, String moveDescription, String moveClass, int moveAccuracy, int currentPp) {
+        this.moveName = moveName;
+        this.moveType = moveType;
+        this.maxPp = maxPp;
+        this.moveDescription = moveDescription;
+        this.moveClass = moveClass;
+        this.moveAccuracy = moveAccuracy;
+        this.currentPp = currentPp;
+        this.movePower = 0;
+        this.moveBehaviours = new ArrayList<MoveBehaviour>();
     }
 }
 
