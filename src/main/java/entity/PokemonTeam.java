@@ -7,7 +7,7 @@ import java.util.List;
 public class PokemonTeam {
     //Suggestion from ChatGPT makes sense as this makes changing team size
     //later on significantly easier
-    private static final int MAX_TEAM_SIZE = 5;
+    private static final int MAX_TEAM_SIZE = 6;
 
     //private keyword is for encapsulation. Initially I was surprised that the
     //final keyword was used but given that we can mutate lists we can still

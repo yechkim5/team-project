@@ -81,7 +81,7 @@ public class OrgJsonGameStateSerializer {
             types.add(typesArr.getString(i));
         }
         Pokemon pokemon = new Pokemon(name, baseStats, types);
-        pokemon.currentHP = jsonP.getInt("currentHP");  // Direct access since not final
+        pokemon.setCurrentHP(jsonP.getInt("currentHP"));
 
         JSONArray movesArr = jsonP.getJSONArray("moves");
         Move[] moves = new Move[movesArr.length()];
@@ -104,7 +104,7 @@ public class OrgJsonGameStateSerializer {
     }
 
     private static BaseLevelStats fromJsonBaseStats(JSONObject jsonS) {
-        return new BaseLevelStats.Builder()
+        return new BaseLevelStats.BaseLevelStatsBuilder()
                 .maxHp(jsonS.getInt("maxHp"))
                 .attack(jsonS.getInt("attack"))
                 .defense(jsonS.getInt("defense"))
@@ -122,21 +122,25 @@ public class OrgJsonGameStateSerializer {
         jsonM.put("maxPp", m.getMaxPp());
         jsonM.put("currentPp", m.getCurrentPp());
         jsonM.put("moveAccuracy", m.getMoveAccuracy());
-        jsonM.put("moveClass", m.getMoveClass());
+        jsonM.put("moveClass", m.getMoveClass());  // ← This line MUST exist
         return jsonM;
     }
 
     private static Move fromJsonMove(JSONObject jsonM) {
-        // Assuming Move has no subclasses yet; extend if needed
-        return new Move(
-                jsonM.getString("moveName"),
-                jsonM.getString("moveType"),
-                jsonM.getInt("maxPp"),
-                jsonM.getString("moveDescription"),
-                jsonM.getString("moveClass"),
-                jsonM.getInt("moveAccuracy"),
-                jsonM.getInt("currentPp")  // Using the new overloaded constructor
-        );
+        String moveName = jsonM.getString("moveName");
+        String moveType = jsonM.getString("moveType");
+        int maxPp = jsonM.getInt("maxPp");
+        String description = jsonM.has("moveDescription") ? jsonM.getString("moveDescription") : moveName + " move";
+        int accuracy = jsonM.has("moveAccuracy") ? jsonM.getInt("moveAccuracy") : 100;
+
+        // DEFAULT to "physical" if moveClass is missing (safe fallback)
+        String moveClass = jsonM.has("moveClass") ? jsonM.getString("moveClass") : "physical";
+
+        // Handle currentPp — default to maxPp if missing
+        int currentPp = jsonM.has("currentPp") ? jsonM.getInt("currentPp") : maxPp;
+
+        // Use your existing overloaded constructor
+        return new Move(moveName, moveType, maxPp, description, moveClass, accuracy, currentPp);
     }
 
     private static JSONObject toJsonBattlePhase(GameState.BattlePhase phase) {

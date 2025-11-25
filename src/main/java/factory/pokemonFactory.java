@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import poke_api.pokemonFetcher;
+import entity.*;
 /**
  * Factory that creates a real Pokemon from the PokeAPI.
  * Usage: new pokemonFactory("pikachu").getPokemon()

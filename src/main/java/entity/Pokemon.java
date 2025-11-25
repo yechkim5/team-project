@@ -78,4 +78,6 @@ public class Pokemon {
     }
 
     public void setMoves(Move[] moves) { this.moves = moves; }
+
+    public void setCurrentHP(int currentHP) { this.currentHP = currentHP; }
 }

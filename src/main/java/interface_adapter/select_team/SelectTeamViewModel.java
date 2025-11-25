@@ -113,5 +113,28 @@ public class SelectTeamViewModel {
     public void setReadyForNextPlayer(boolean readyForNextPlayer) {
         this.readyForNextPlayer = readyForNextPlayer;
     }
+
+
+    private entity.PokemonTeam player1Team = new entity.PokemonTeam();
+    private entity.PokemonTeam player2Team = new entity.PokemonTeam();
+    private int currentPlayer = 1;
+
+    public entity.PokemonTeam getPlayer1Team() { return player1Team; }
+    public entity.PokemonTeam getPlayer2Team() { return player2Team; }
+
+    //called every time a team is updated
+    public void updateCurrentTeam(entity.PokemonTeam team) {
+        if (currentPlayer == 1) {
+            player1Team = team;
+        } else {
+            player2Team = team;
+        }
+        setTeam(team); // Keep old behavior for UI
+    }
+
+    public void setCurrentPlayer(int player) {
+        this.currentPlayer = player;
+        setPlayerNumber(player);
+    }
 }
 

@@ -1,66 +1,73 @@
 package app;
 
 import entity.GameState;
-import view.BattlePanel;  // Assuming view package
-import view.TeamSelectionScreen;  // Assuming view package
+import use_case.select_team.*;
+import interface_adapter.select_team.*;
+import view.*;
 
 import javax.swing.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 public class Main {
 
-    private static SimpleMp3Player musicPlayer;
-
     public static void main(String[] args) {
-        // Initialize game state (loads from save if exists)
-        GameOrchestrator.init();
+        // Load or initialize game state (this handles save/load automatically)
+        //GameOrchestrator.init();
+        GameOrchestrator.forceNewGame();
         GameState state = GameOrchestrator.getCurrent();
 
-        // Set up music (adjust path to your MP3 file)
-        musicPlayer = new SimpleMp3Player("music/battle_theme.mp3");  // Or wherever your MP3 is
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Pokémon Battle Game");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setLocationRelativeTo(null);
 
-        // Create main window
-        JFrame frame = new JFrame("Pokemon Battle Game");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            // === RESUME FROM SAVED STATE ===
+            if (state.currentScreen() == GameState.Screen.BATTLE && state.battlePhase() != null) {
+                // Mid-battle resume (you can replace with real BattlePanel later)
+                frame.setSize(1000, 700);
+                frame.setContentPane(new JLabel(
+                        "<html><h1>Battle Resumed!</h1><p>Turn: " + state.battlePhase().currentTurn() +
+                                "<br>Player 1 Active: " + state.player1Team().getActivePokemon().getName() +
+                                "<br>Player 2 Active: " + state.player2Team().getActivePokemon().getName() + "</p></html>",
+                        SwingConstants.CENTER
+                ));
 
-        // Add window listener to stop music on close
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                musicPlayer.stop();
+            } else if (state.currentScreen() == GameState.Screen.GAME_OVER) {
+                // Game over screen
+                frame.setSize(600, 400);
+                JPanel panel = new JPanel();
+                panel.setLayout(new java.awt.GridBagLayout());
+                JLabel label = new JLabel("<html><h1>Game Over!</h1><p>High Score: " + state.highScore() + "</p></html>");
+                label.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 28));
+                panel.add(label);
+                frame.setContentPane(panel);
+
+            } else {
+                // === TEAM SELECTION (with full save/resume support) ===
+                frame.setSize(1200, 700);
+
+                SelectTeamViewModel viewModel = new SelectTeamViewModel();
+                SelectTeamOutputBoundary presenter = new SelectTeamPresenter(viewModel);
+                SelectTeamInteractor interactor = new SelectTeamInteractor(presenter);
+
+                // RESTORE SAVED TEAMS — this is the magic line
+                interactor.restoreTeam(1, state.player1Team());
+                interactor.restoreTeam(2, state.player2Team());
+
+                SelectTeamController controller = new SelectTeamController(interactor);
+                TeamSelectionScreen teamScreen = new TeamSelectionScreen(controller, viewModel);
+
+                // Restore whose turn it is
+                int currentPlayerNum = (state.activeTeamSelector() == GameState.Player.PLAYER1) ? 1 : 2;
+                viewModel.setPlayerNumber(currentPlayerNum);
+
+                // Force UI to show current player's team
+                interactor.getCurrentTeam(currentPlayerNum);
+
+                frame.setContentPane(teamScreen);
             }
+
+            frame.pack();
+            frame.setVisible(true);
         });
-
-        // Resume based on loaded state
-        if (state.currentScreen() == GameState.Screen.TEAM_SELECTION) {
-            // Show team selection, inject current state (teams, active selector)
-            TeamSelectionScreen teamScreen = new TeamSelectionScreen(state.activeTeamSelector(), state.player1Team(), state.player2Team());
-            frame.add(teamScreen);
-            // TODO: Wire buttons to call GameOrchestrator.updateState(newState) on changes
-        } else if (state.currentScreen() == GameState.Screen.BATTLE) {
-            // Recreate Battle from saved teams + phase
-            entity.Battle battle = new entity.Battle(state.player1Team(), state.player2Team());
-            battle.switchTurn();  // Set turn from phase
-            if (state.battlePhase().currentTurn() == GameState.Turn.PLAYER2) {
-                battle.switchTurn();  // Align to saved turn
-            }
-            state.player1Team().switchActivePokemon(state.battlePhase().player1ActiveIndex());
-            state.player2Team().switchActivePokemon(state.battlePhase().player2ActiveIndex());
-
-            BattlePanel battlePanel = new BattlePanel(battle);  // Assuming BattlePanel takes Battle
-            frame.add(battlePanel);
-            // TODO: Wire actions (moves, switches) to update HP/PP, then call GameOrchestrator.updateState(newState)
-        } else if (state.currentScreen() == GameState.Screen.GAME_OVER) {
-            // Show game over screen (add a view.GameOverPanel if needed)
-            JLabel gameOverLabel = new JLabel("Game Over! High Score: " + state.highScore());
-            frame.add(gameOverLabel);
-        }
-
-        frame.pack();
-        frame.setVisible(true);
-
-        // Play music (starts on battle or as needed)
-        musicPlayer.play();
     }
 }

@@ -2,6 +2,7 @@ package interface_adapter.select_team;
 
 import use_case.select_team.SelectTeamOutputBoundary;
 import use_case.select_team.SelectTeamOutputData;
+import entity.*;
 
 /**
  * Presenter for Select Team Use Case
@@ -38,7 +39,7 @@ public class SelectTeamPresenter implements SelectTeamOutputBoundary {
         viewModel.setAddedPokemon(outputData.getAddedPokemon());
         // Set team and message last - these fire property change events
         // Don't call firePropertyChanged() as setters already fire events
-        viewModel.setTeam(outputData.getTeam());
+        viewModel.updateCurrentTeam(outputData.getTeam());
         viewModel.setMessage(outputData.getMessage());
     }
 
@@ -56,8 +57,30 @@ public class SelectTeamPresenter implements SelectTeamOutputBoundary {
         viewModel.setTeamFinalized(true);
         viewModel.setReadyForNextPlayer(outputData.isReadyForNextPlayer());
         // Set team and message last - these fire property change events
-        viewModel.setTeam(outputData.getTeam());
+        viewModel.updateCurrentTeam(outputData.getTeam());
         viewModel.setMessage(outputData.getMessage());
+
+        // AUTO-SAVE AFTER ANY PLAYER FINALIZES THEIR TEAM
+        // This runs when Player 1 or Player 2 clicks "Finalize Team"
+        int finalizedPlayer = outputData.getPlayerNumber();
+
+        // Determine next player (or battle soon)
+        GameState.Player nextSelector = (finalizedPlayer == 1)
+                ? GameState.Player.PLAYER2
+                : GameState.Player.PLAYER1;  // After Player 2 → battle next
+
+        // Save current state with correct teams from ViewModel
+        app.GameOrchestrator.updateState(new entity.GameState(
+                entity.GameState.Screen.TEAM_SELECTION,
+                nextSelector,
+                viewModel.getPlayer1Team(),   // Always up-to-date
+                viewModel.getPlayer2Team(),   // Always up-to-date
+                null,                         // no battle yet
+                89,                           // your tower level (or make dynamic later)
+                0                             // high score
+        ));
+
+        System.out.println("[Auto-Save] Player " + finalizedPlayer + " finalized team → saved to autosave.json");
     }
 
     @Override
@@ -66,6 +89,7 @@ public class SelectTeamPresenter implements SelectTeamOutputBoundary {
         viewModel.setTeamFinalized(false);
         // Only set message - it will fire property change event
         viewModel.setMessage("Player " + playerNumber + " - Select your Pokemon");
+        viewModel.setCurrentPlayer(playerNumber);
     }
 }
 
