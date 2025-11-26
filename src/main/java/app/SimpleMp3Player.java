@@ -1,4 +1,4 @@
-package app;
+/*package app;
 // SimpleMp3Player.java
 import Music.musicPlayer;
 import javazoom.jl.player.Player;
@@ -64,3 +64,4 @@ public class SimpleMp3Player implements musicPlayer {
         return playing;
     }
 }
+*/

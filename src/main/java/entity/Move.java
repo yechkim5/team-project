@@ -2,9 +2,8 @@ package entity;
 
 import entity.moveyStuff.MoveBehaviour;
 
-import javax.lang.model.type.NullType;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Move {
     private final String moveName;
@@ -15,6 +14,7 @@ public class Move {
     private int currentPp;
     private final int moveAccuracy;
     private final List<MoveBehaviour> moveBehaviours;
+    private String moveClass;
 
     //Will make this builder for ease of instantiation using API
     public Move(String moveName, String moveType, int pp, String moveDescription,
@@ -28,29 +28,17 @@ public class Move {
         this.moveAccuracy = moveAccuracy;
         this.moveBehaviours = moveBehaviours;
         this.movePower = movePower;
+        this.moveClass = moveClass;
     }
 
     public void useMove(PokemonTeam userTeam, PokemonTeam targetTeam,
-                        BattleStats userBattleStats, BattleStats targetBattleStats) {
-        if(hitSucceeds(userBattleStats, targetBattleStats)){
-        for (MoveBehaviour behavior : moveBehaviours) {
-            behavior.execute(this, userTeam, targetTeam, userBattleStats, targetBattleStats);
-        }}
-        currentPp -= 1;
-    }
+                        BattleStats userStats, BattleStats targetStats) {
 
-    private boolean hitSucceeds(BattleStats userBattleStats,
-                                BattleStats targetBattleStats) {
-        if(Objects.isNull(moveAccuracy)) {
-            //This requires further expansion as all moves either have accuracy and
-            //can miss or do not have accuracy and always hit. Discuss with Ishaan
-            //to determine how to represent moves with no accuracy using an integer
-            return true;
+        for (MoveBehaviour behavior : moveBehaviours) {
+            behavior.execute(this, userTeam, targetTeam, userStats, targetStats);
         }
-        return ((float) moveAccuracy / 100 *
-                userBattleStats.getStat(StatType.ACCURACY) *
-                targetBattleStats.getStat(StatType.EVASION) >
-                (Math.random() * 256) / 255 );
+        currentPp -= 1;
+
     }
 
     public int getMovePower() {
@@ -79,6 +67,22 @@ public class Move {
 
     public int getCurrentPp() {
         return currentPp;
+    }
+
+    public String getMoveClass() {
+        return moveClass;
+    }
+
+    public Move(String moveName, String moveType, int maxPp, String moveDescription, String moveClass, int moveAccuracy, int currentPp) {
+        this.moveName = moveName;
+        this.moveType = moveType;
+        this.maxPp = maxPp;
+        this.moveDescription = moveDescription;
+        this.moveClass = moveClass;
+        this.moveAccuracy = moveAccuracy;
+        this.currentPp = currentPp;
+        this.movePower = 0;
+        this.moveBehaviours = new ArrayList<MoveBehaviour>();
     }
 }
 
