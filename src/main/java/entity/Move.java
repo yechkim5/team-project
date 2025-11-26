@@ -2,7 +2,9 @@ package entity;
 
 import entity.moveyStuff.MoveBehaviour;
 
+import javax.lang.model.type.NullType;
 import java.util.List;
+import java.util.Objects;
 
 public class Move {
     private final String moveName;
@@ -29,13 +31,26 @@ public class Move {
     }
 
     public void useMove(PokemonTeam userTeam, PokemonTeam targetTeam,
-                        BattleStats userStats, BattleStats targetStats) {
-
+                        BattleStats userBattleStats, BattleStats targetBattleStats) {
+        if(hitSucceeds(userBattleStats, targetBattleStats)){
         for (MoveBehaviour behavior : moveBehaviours) {
-            behavior.execute(this, userTeam, targetTeam, userStats, targetStats);
-        }
+            behavior.execute(this, userTeam, targetTeam, userBattleStats, targetBattleStats);
+        }}
         currentPp -= 1;
+    }
 
+    private boolean hitSucceeds(BattleStats userBattleStats,
+                                BattleStats targetBattleStats) {
+        if(Objects.isNull(moveAccuracy)) {
+            //This requires further expansion as all moves either have accuracy and
+            //can miss or do not have accuracy and always hit. Discuss with Ishaan
+            //to determine how to represent moves with no accuracy using an integer
+            return true;
+        }
+        return ((float) moveAccuracy / 100 *
+                userBattleStats.getStat(StatType.ACCURACY) *
+                targetBattleStats.getStat(StatType.EVASION) >
+                (Math.random() * 256) / 255 );
     }
 
     public int getMovePower() {
