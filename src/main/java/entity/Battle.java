@@ -125,5 +125,7 @@ public class Battle {
     public boolean isTeam1Turn() { return isTeam1Turn; }
     public boolean isBattleOngoing() { return battleOngoing; }
     public PokemonTeam getWinner() { return winner; }
-
+    public Map<Pokemon, BattleStats> getBattleStatsMap() {
+        return battleStatsMap;
+    }
 }
