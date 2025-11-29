@@ -104,9 +104,9 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
         Pokemon yourPokemon = battle.getTeam1().getActivePokemon();
         attackPanel = new AttackPanel(battle, controller, this::showChoice);
 
-        // TEAM panel: TeamSwitchPanel with Back wired to showChoice()
-        Pokemon[] teamArray = battle.getTeam1().getTeam().toArray(new Pokemon[0]);
-        teamSwitchPanel = new TeamSwitchPanel(teamArray, this::showChoice);
+        // TEAM panel: TeamSwitchPanel with Back AND battle reference for switching
+        Pokemon[] teamArray = battle.getCurrentTurnTeam().getTeam().toArray(new Pokemon[0]);
+        teamSwitchPanel = new TeamSwitchPanel(teamArray, battle, this::showChoice, this::handleSwitch);
 
         bottomCards.add(choicePanel,   "CHOICE");
         bottomCards.add(attackPanel,   "MOVES");
@@ -134,10 +134,26 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void showTeam() {
+        // Refresh team panel with current team's Pokemon
+        bottomCards.remove(teamSwitchPanel);
+        Pokemon[] teamArray = battle.getCurrentTurnTeam().getTeam().toArray(new Pokemon[0]);
+        teamSwitchPanel = new TeamSwitchPanel(teamArray, battle, this::showChoice, this::handleSwitch);
+        bottomCards.add(teamSwitchPanel, "TEAM");
+
         CardLayout cl = (CardLayout) bottomCards.getLayout();
         cl.show(bottomCards, "TEAM");
         revalidate();
         repaint();
+    }
+
+    // Called when a Pokemon is switched
+    private void handleSwitch() {
+        refreshStatus();
+        // Log the switch in battle log
+        Pokemon newActive = battle.getCurrentTurnTeam().getActivePokemon();
+        battleLog.append("Go, " + newActive.getName() + "!\n");
+        battleLog.append("It's now " + (battle.isTeam1Turn() ? "Player 1" : "Player 2") + "'s turn.\n\n");
+        battleLog.setCaretPosition(battleLog.getDocument().getLength());
     }
 
     // Called when battle state changes (move executed)
