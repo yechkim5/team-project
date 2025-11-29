@@ -1,27 +1,25 @@
 package view;
 
-import view.demo_entity.DemoPokemon;
+import entity.Pokemon;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
  * Team switch screen (Battle -> Team).
+ * NOW WORKS WITH REAL POKEMON ENTITIES!
  *
  * Layout:
  *  - Top: "Choose a Pokémon to switch in"
- *  - Center: 2x2 grid of Pokémon buttons
+ *  - Center: 2x3 grid of Pokémon buttons
  *  - Bottom: Back button
- *
- * For demo only – buttons don't actually switch.
- * Later, you'll wire this to your switch use case and disable fainted mons.
  */
 public class TeamSwitchPanel extends JPanel {
 
-    private final DemoPokemon[] team;
+    private final Pokemon[] team;
     private final Runnable onBack;
 
-    public TeamSwitchPanel(DemoPokemon[] team, Runnable onBack) {
+    public TeamSwitchPanel(Pokemon[] team, Runnable onBack) {
         this.team = team;
         this.onBack = onBack;
 
@@ -39,23 +37,43 @@ public class TeamSwitchPanel extends JPanel {
         int maxButtons = Math.min(6, team.length);
 
         for (int i = 0; i < maxButtons; i++) {
-            DemoPokemon p = team[i];
+            Pokemon p = team[i];
             if (p == null) {
                 grid.add(new JLabel());
                 continue;
             }
 
-            String label = p.getName() + " (HP " + p.getCurrentHp() + "/" + p.getMaxHp() + ")";
+            String label = "<html><center>" + p.getName() +
+                    "<br>HP: " + p.getCurrentHP() + "/" + p.getBaseStats().getMaxHp() +
+                    "</center></html>";
             JButton btn = new JButton(label);
 
             // Make buttons bigger
             btn.setFont(btn.getFont().deriveFont(Font.BOLD, 14f));
             btn.setPreferredSize(new Dimension(200, 80));
 
+            // Disable if fainted
+            if (p.getCurrentHP() <= 0) {
+                btn.setEnabled(false);
+                btn.setText("<html><center>" + p.getName() +
+                        "<br>(Fainted)</center></html>");
+            }
+
+            // TODO: Implement switching logic here
+            // For now, just show a message
+            btn.addActionListener(e -> {
+                if (p.getCurrentHP() > 0) {
+                    JOptionPane.showMessageDialog(this,
+                            "Switching feature coming soon!\n" + p.getName() + " selected.",
+                            "Switch Pokemon",
+                            JOptionPane.INFORMATION_MESSAGE);
+                }
+            });
+
             grid.add(btn);
         }
 
-        // Fill remaining cells if fewer than 4 Pokémon
+        // Fill remaining cells if fewer than 6 Pokémon
         for (int i = maxButtons; i < 6; i++) {
             grid.add(new JLabel());
         }
@@ -65,7 +83,7 @@ public class TeamSwitchPanel extends JPanel {
         backButton.setFont(backButton.getFont().deriveFont(14f));
         backButton.addActionListener(e -> {
             if (onBack != null) {
-                onBack.run(); // tell BattlePanel to go back to main menu
+                onBack.run();
             }
         });
 
