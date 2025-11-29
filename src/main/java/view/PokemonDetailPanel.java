@@ -54,6 +54,12 @@ public class PokemonDetailPanel extends JPanel {
         showPokemon(p);
     }
 
+    // Add this NEW constructor for real Pokemon
+    public PokemonDetailPanel(Pokemon p) {
+        this();
+        showPokemon(p);
+    }
+
     public void showPokemon(DemoPokemon p) {
         nameLabel.setText(p.getName());
         typeLabel.setText("Type " + p.getType());
