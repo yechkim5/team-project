@@ -1,34 +1,37 @@
 package view;
 
-import view.demo_entity.DemoMove;
-import view.demo_entity.DemoPokemon;
+import entity.Battle;
+import entity.Move;
+import entity.Pokemon;
+import interface_adapter.battle.BattleController;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 
 /**
  * Move selection screen (Fight -> Moves).
+ * NOW ACTUALLY EXECUTES MOVES!
  *
  * Layout:
  *  - Top: "Choose a move for X"
  *  - Center: 2x2 grid of big move buttons
  *  - Bottom: Back button
- *
- * For now, buttons don't execute attacks; they are just visual.
- * Later, you can attach listeners to each move button.
  */
 public class AttackPanel extends JPanel {
 
-    private final DemoPokemon attacker;
-    private final Runnable onBack; // callback to go back to main battle menu
+    private final Battle battle;
+    private final BattleController controller;
+    private final Runnable onBack;
 
-    public AttackPanel(DemoPokemon attacker, Runnable onBack) {
-        this.attacker = attacker;
+    public AttackPanel(Battle battle, BattleController controller, Runnable onBack) {
+        this.battle = battle;
+        this.controller = controller;
         this.onBack = onBack;
 
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        Pokemon attacker = battle.getCurrentTurnPokemon();
 
         // Title at top
         JLabel title = new JLabel("Choose a move for " + attacker.getName(), SwingConstants.CENTER);
@@ -39,27 +42,42 @@ public class AttackPanel extends JPanel {
         JPanel grid = new JPanel(new GridLayout(2, 2, 10, 10));
         add(grid, BorderLayout.CENTER);
 
-        List<DemoMove> moves = attacker.getMoves();
-        int maxButtons = Math.min(4, moves.size());
+        Move[] moves = attacker.getMoves();
+        int maxButtons = Math.min(4, moves.length);
 
         for (int i = 0; i < maxButtons; i++) {
-            DemoMove m = moves.get(i);
-            String label = m.getName() + " (PP " + m.getCurrentPP() + "/" + m.getMaxPP() + ")";
-            JButton moveButton = new JButton(label);
+            if (moves[i] != null) {
+                Move move = moves[i];
+                String label = move.getMoveName() +
+                        "\n(PP " + move.getCurrentPp() + "/" + move.getMaxPp() + ")";
+                JButton moveButton = new JButton("<html><center>" +
+                        move.getMoveName() + "<br>PP: " +
+                        move.getCurrentPp() + "/" + move.getMaxPp() +
+                        "</center></html>");
 
-            // Make buttons bigger
-            moveButton.setFont(moveButton.getFont().deriveFont(Font.BOLD, 14f));
-            moveButton.setPreferredSize(new Dimension(200, 80));
+                // Make buttons bigger
+                moveButton.setFont(moveButton.getFont().deriveFont(Font.BOLD, 14f));
+                moveButton.setPreferredSize(new Dimension(200, 80));
 
-            // For now, buttons do nothing. Later, add attack logic here.
-            // moveButton.addActionListener(e -> { /* call battle use case */ });
+                // Enable only if PP > 0
+                moveButton.setEnabled(move.getCurrentPp() > 0);
 
-            grid.add(moveButton);
+                // ACTUALLY EXECUTE THE MOVE!
+                final int moveIndex = i;
+                moveButton.addActionListener(e -> {
+                    controller.useMove(battle, move, moveIndex);
+                    // onBack will be called by the view model update
+                });
+
+                grid.add(moveButton);
+            } else {
+                grid.add(new JLabel()); // empty cell
+            }
         }
 
-        // If fewer than 4 moves, fill remaining slots with empty labels
+        // Fill remaining slots with empty labels
         for (int i = maxButtons; i < 4; i++) {
-            grid.add(new JLabel()); // empty cell
+            grid.add(new JLabel());
         }
 
         // Bottom: Back button
@@ -67,7 +85,7 @@ public class AttackPanel extends JPanel {
         backButton.setFont(backButton.getFont().deriveFont(14f));
         backButton.addActionListener(e -> {
             if (onBack != null) {
-                onBack.run(); // tell BattlePanel to go back to main menu
+                onBack.run();
             }
         });
 
