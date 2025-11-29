@@ -3,7 +3,7 @@ package view;
 import entity.Battle;
 import entity.Move;
 import entity.Pokemon;
-import interface_adapter.start_battle.BattleController;
+import interface_adapter.battle.BattleController;
 
 import javax.swing.*;
 import java.awt.*;

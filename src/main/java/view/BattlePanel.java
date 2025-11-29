@@ -1,7 +1,7 @@
 package view;
 
 import entity.*;
-import interface_adapter.start_battle.*;
+import interface_adapter.battle.*;
 
 import javax.swing.*;
 import java.awt.*;

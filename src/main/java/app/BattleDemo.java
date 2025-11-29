@@ -2,7 +2,7 @@ package app;
 
 import entity.*;
 import factory.pokemonFactory;
-import interface_adapter.start_battle.*;
+import interface_adapter.battle.*;
 import use_case.use_move.*;
 import use_case.start_battle.*;
 import view.BattlePanel;
@@ -41,7 +41,7 @@ public class BattleDemo {
             BattleViewModel useMoveViewModel = new BattleViewModel();
             useMoveViewModel.setBattle(battle);
 
-            UseMoveOutputBoundary useMovePresenter = new interface_adapter.start_battle.StartBattlePresenter(useMoveViewModel);
+            UseMoveOutputBoundary useMovePresenter = new interface_adapter.battle.BattlePresenter(useMoveViewModel);
             UseMoveInputBoundary useMoveInteractor = new UseMoveInteractor(useMovePresenter);
             BattleController battleController = new BattleController(useMoveInteractor);
 
