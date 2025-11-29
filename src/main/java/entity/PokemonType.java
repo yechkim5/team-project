@@ -103,9 +103,10 @@ public enum PokemonType {
 
     //Add STAB modifier if you have time
     public double getEffectivenessAgainst(List<String> targetTypes) {
-        double modifier = 1;
+        double modifier = 1.0;
         for (String targetType : targetTypes) {
-            modifier *= effectiveness.get(targetType);
+            // Use getOrDefault to return 1.0 (neutral) if matchup not found
+            modifier *= effectiveness.getOrDefault(targetType, 1.0);
         }
         return modifier;
     }

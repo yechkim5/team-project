@@ -1,8 +1,7 @@
 package view;
 
 import entity.*;
-import interface_adapter.battle.*;
-import use_case.use_move.*;
+import interface_adapter.start_battle.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -90,13 +89,10 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
         fightButton.setFont(fightButton.getFont().deriveFont(16f));
         teamButton.setFont(teamButton.getFont().deriveFont(16f));
 
-        // Only enable buttons on player 1's turn
+
         fightButton.addActionListener(e -> {
-            if (battle.isTeam1Turn()) {
-                showMoves();
-            } else {
-                JOptionPane.showMessageDialog(this, "Wait for your turn!", "Not Your Turn", JOptionPane.WARNING_MESSAGE);
-            }
+            // Allow both players to see moves on their turn!
+            showMoves();
         });
 
         teamButton.addActionListener(e -> showTeam());

@@ -1,11 +1,19 @@
 package app;
 
 import entity.GameState;
+import entity.Battle;
+import entity.PokemonTeam;
 import use_case.select_team.*;
+import use_case.start_battle.*;
+import use_case.use_move.*;
 import interface_adapter.select_team.*;
+import interface_adapter.start_battle.*;
+import interface_adapter.start_battle.StartBattlePresenter;
 import view.*;
 
 import javax.swing.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 public class Main {
 
@@ -63,11 +71,63 @@ public class Main {
                 // Force UI to show current player's team
                 interactor.getCurrentTeam(currentPlayerNum);
 
+                // === LISTEN FOR BOTH TEAMS FINALIZED ===
+                viewModel.addPropertyChangeListener(new PropertyChangeListener() {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        // Check if both teams are finalized
+                        if (state.player1Team() != null && state.player1Team().getTeam().size() == 6 &&
+                                state.player2Team() != null && state.player2Team().getTeam().size() == 6) {
+
+                            // Both teams ready - START BATTLE!
+                            SwingUtilities.invokeLater(() -> {
+                                startBattle(frame, state.player1Team(), state.player2Team());
+                            });
+                        }
+                    }
+                });
+
                 frame.setContentPane(teamScreen);
             }
 
             frame.pack();
             frame.setVisible(true);
         });
+    }
+
+    /**
+     * Transitions from team selection to battle.
+     * Wires up the Start Battle and Use Move use cases.
+     */
+    private static void startBattle(JFrame frame, PokemonTeam team1, PokemonTeam team2) {
+        // Start battle use case - creates the Battle entity
+        BattleViewModel battleViewModel = new BattleViewModel();
+        StartBattlePresenter startPresenter = new StartBattlePresenter(battleViewModel);
+        StartBattleInteractor startInteractor = new StartBattleInteractor(startPresenter);
+
+        StartBattleInputData startInput = new StartBattleInputData(team1, team2);
+        startInteractor.execute(startInput);
+
+        Battle battle = battleViewModel.getBattle();
+
+        if (battle == null) {
+            JOptionPane.showMessageDialog(frame, "Failed to start battle!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Use move use case - handles battle actions
+        BattleViewModel useMoveViewModel = new BattleViewModel();
+        useMoveViewModel.setBattle(battle);
+
+        StartBattlePresenter useMovePresenter = new StartBattlePresenter(useMoveViewModel);
+        UseMoveInteractor useMoveInteractor = new UseMoveInteractor(useMovePresenter);
+        BattleController battleController = new BattleController(useMoveInteractor);
+
+        // Switch to battle view
+        BattlePanel battlePanel = new BattlePanel(battle, battleController, useMoveViewModel);
+        frame.setContentPane(battlePanel);
+        frame.setSize(1000, 800);
+        frame.revalidate();
+        frame.repaint();
     }
 }

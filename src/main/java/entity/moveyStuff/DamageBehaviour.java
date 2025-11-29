@@ -30,7 +30,7 @@ public abstract class DamageBehaviour implements MoveBehaviour {
     }*/
 
     private static double getTypeModifier(Move move, PokemonTeam targetTeam) {
-        return PokemonType.valueOf(move.getMoveType())
+        return PokemonType.valueOf(move.getMoveType().toUpperCase())  // ← ADD .toUpperCase()
                 .getEffectivenessAgainst(targetTeam.getActivePokemon().getTypes());
     }
 

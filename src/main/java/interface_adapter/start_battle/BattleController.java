@@ -1,4 +1,4 @@
-package interface_adapter.battle;
+package interface_adapter.start_battle;
 
 import entity.Battle;
 import entity.Move;

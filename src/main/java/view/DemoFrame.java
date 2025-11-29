@@ -2,7 +2,7 @@ package view;
 
 import entity.*;
 import factory.pokemonFactory;
-import interface_adapter.battle.*;
+import interface_adapter.start_battle.*;
 import use_case.use_move.*;
 import use_case.start_battle.*;
 import use_case.select_team.SelectTeamInteractor;
@@ -109,7 +109,7 @@ public class DemoFrame extends JFrame {
             BattleViewModel useMoveViewModel = new BattleViewModel();
             useMoveViewModel.setBattle(battle);
 
-            UseMoveOutputBoundary useMovePresenter = new BattlePresenter(useMoveViewModel);
+            UseMoveOutputBoundary useMovePresenter = new interface_adapter.start_battle.StartBattlePresenter(useMoveViewModel);
             UseMoveInputBoundary useMoveInteractor = new UseMoveInteractor(useMovePresenter);
             BattleController battleController = new BattleController(useMoveInteractor);
 
@@ -140,7 +140,7 @@ public class DemoFrame extends JFrame {
             // Create controller
             BattleViewModel viewModel = new BattleViewModel();
             viewModel.setBattle(battle);
-            UseMoveOutputBoundary presenter = new BattlePresenter(viewModel);
+            UseMoveOutputBoundary presenter = new interface_adapter.start_battle.StartBattlePresenter(viewModel);
             UseMoveInputBoundary interactor = new UseMoveInteractor(presenter);
             BattleController controller = new BattleController(interactor);
 
