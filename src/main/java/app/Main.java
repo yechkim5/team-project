@@ -142,6 +142,35 @@ public class Main {
     private static void startBattle(JFrame frame, PokemonTeam team1, PokemonTeam team2) {
         System.out.println("\n=== STARTING BATTLE - WIRING 4 USE CASES ===");
 
+        // ============================================================
+        // CRITICAL DEBUG: Verify teams are different
+        // ============================================================
+        System.out.println("\n[DEBUG] TEAM VERIFICATION:");
+        System.out.println("Team 1 size: " + team1.getTeam().size());
+        System.out.println("Team 2 size: " + team2.getTeam().size());
+
+        if (team1.getTeam().size() > 0) {
+            System.out.println("Team 1 Active Pokemon: " + team1.getActivePokemon().getName());
+            System.out.println("Team 1 Full Roster:");
+            for (int i = 0; i < team1.getTeam().size(); i++) {
+                System.out.println("  " + (i+1) + ". " + team1.getTeam().get(i).getName());
+            }
+        }
+
+        if (team2.getTeam().size() > 0) {
+            System.out.println("Team 2 Active Pokemon: " + team2.getActivePokemon().getName());
+            System.out.println("Team 2 Full Roster:");
+            for (int i = 0; i < team2.getTeam().size(); i++) {
+                System.out.println("  " + (i+1) + ". " + team2.getTeam().get(i).getName());
+            }
+        }
+
+        // Verify they're different objects
+        System.out.println("Are teams the same object? " + (team1 == team2));
+        System.out.println("Team1 hashCode: " + System.identityHashCode(team1));
+        System.out.println("Team2 hashCode: " + System.identityHashCode(team2));
+        System.out.println();
+
         // USE CASE 1: START BATTLE
         StartBattleViewModel startBattleViewModel = new StartBattleViewModel();
         StartBattleOutputBoundary startBattlePresenter = new StartBattlePresenter(startBattleViewModel);
@@ -157,6 +186,23 @@ public class Main {
             JOptionPane.showMessageDialog(frame, errorMsg, "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        // ============================================================
+        // CRITICAL DEBUG: Verify battle has correct teams
+        // ============================================================
+        System.out.println("[DEBUG] BATTLE OBJECT VERIFICATION:");
+        System.out.println("Battle Team1 Active: " + battle.getTeam1().getActivePokemon().getName());
+        System.out.println("Battle Team2 Active: " + battle.getTeam2().getActivePokemon().getName());
+        System.out.println("Battle Team1 Full Roster:");
+        for (int i = 0; i < battle.getTeam1().getTeam().size(); i++) {
+            System.out.println("  " + (i+1) + ". " + battle.getTeam1().getTeam().get(i).getName());
+        }
+        System.out.println("Battle Team2 Full Roster:");
+        for (int i = 0; i < battle.getTeam2().getTeam().size(); i++) {
+            System.out.println("  " + (i+1) + ". " + battle.getTeam2().getTeam().get(i).getName());
+        }
+        System.out.println("Are battle teams the same object? " + (battle.getTeam1() == battle.getTeam2()));
+        System.out.println();
 
         // USE CASE 4: END BATTLE
         EndBattleViewModel endBattleViewModel = new EndBattleViewModel();
@@ -197,5 +243,4 @@ public class Main {
 
         System.out.println("=== ALL 4 USE CASES WIRED ===\n");
     }
-
 }
