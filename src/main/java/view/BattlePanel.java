@@ -1,6 +1,5 @@
 package view;
 
-import app.Main;
 import entity.*;
 import interface_adapter.battle.*;
 
@@ -188,9 +187,7 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
                         winnerName + " wins the battle!",
                         "Battle Over",
                         JOptionPane.INFORMATION_MESSAGE
-
                 );
-                Main.battleMusic.stopMusic();
             }
         }
     }
