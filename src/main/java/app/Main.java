@@ -3,11 +3,22 @@ package app;
 import entity.Battle;
 import entity.GameState;
 import entity.PokemonTeam;
+
+// USE CASE IMPORTS - ALL 4 USE CASES
 import use_case.select_team.*;
 import use_case.start_battle.*;
 import use_case.use_move.*;
+import use_case.end_battle.*;
+import use_case.switch_pokemon.*;
+
+// INTERFACE ADAPTER IMPORTS - ALL 4 USE CASES
 import interface_adapter.select_team.*;
-import interface_adapter.battle.*;
+import interface_adapter.start_battle.*;
+import interface_adapter.use_move.*;
+import interface_adapter.switch_pokemon.*;
+import interface_adapter.end_battle.*;
+
+// VIEW IMPORTS
 import view.*;
 
 import javax.swing.*;
@@ -129,72 +140,62 @@ public class Main {
     }
 
     private static void startBattle(JFrame frame, PokemonTeam team1, PokemonTeam team2) {
-        // === CRITICAL: Debug logging to verify teams are different ===
-        System.out.println("\n=== STARTING BATTLE ===");
-        System.out.println("Team 1 Pokemon:");
-        for (int i = 0; i < team1.getTeam().size(); i++) {
-            System.out.println("  " + (i+1) + ". " + team1.getTeam().get(i).getName());
-        }
+        System.out.println("\n=== STARTING BATTLE - WIRING 4 USE CASES ===");
 
-        System.out.println("Team 2 Pokemon:");
-        for (int i = 0; i < team2.getTeam().size(); i++) {
-            System.out.println("  " + (i+1) + ". " + team2.getTeam().get(i).getName());
-        }
+        // USE CASE 1: START BATTLE
+        StartBattleViewModel startBattleViewModel = new StartBattleViewModel();
+        StartBattleOutputBoundary startBattlePresenter = new StartBattlePresenter(startBattleViewModel);
+        StartBattleInputBoundary startBattleInteractor = new StartBattleInteractor(startBattlePresenter);
+        StartBattleController startBattleController = new StartBattleController(startBattleInteractor);
 
-        // Verify teams are different objects
-        System.out.println("Teams are same object? " + (team1 == team2));
-        System.out.println("==================\n");
+        startBattleController.startBattle(team1, team2);
 
-        // === USE CASE 1: START BATTLE ===
-        BattleViewModel battleViewModel = new BattleViewModel();
-        StartBattleOutputBoundary startPresenter = new StartBattlePresenter(battleViewModel);
-        StartBattleInteractor startInteractor = new StartBattleInteractor(startPresenter);
-
-        StartBattleInputData startInput = new StartBattleInputData(team1, team2);
-        startInteractor.execute(startInput);
-
-        Battle battle = battleViewModel.getBattle();
+        Battle battle = startBattleViewModel.getBattle();
 
         if (battle == null) {
-            JOptionPane.showMessageDialog(frame, "Failed to start battle!", "Error", JOptionPane.ERROR_MESSAGE);
+            String errorMsg = startBattleViewModel.getMessage();
+            JOptionPane.showMessageDialog(frame, errorMsg, "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // === USE CASE 2: USE MOVE ===
-        BattleViewModel useMoveViewModel = new BattleViewModel();
+        // USE CASE 4: END BATTLE
+        EndBattleViewModel endBattleViewModel = new EndBattleViewModel();
+        EndBattleOutputBoundary endBattlePresenter = new EndBattlePresenter(endBattleViewModel);
+        EndBattleInputBoundary endBattleInteractor = new EndBattleInteractor(endBattlePresenter);
+
+        // USE CASE 2: USE MOVE
+        UseMoveViewModel useMoveViewModel = new UseMoveViewModel();
         useMoveViewModel.setBattle(battle);
 
-        UseMoveOutputBoundary useMovePresenter = new BattlePresenter(useMoveViewModel);
-        UseMoveInputBoundary useMoveInteractor = new UseMoveInteractor(useMovePresenter);
-        BattleController battleController = new BattleController(useMoveInteractor);
+        UseMoveOutputBoundary useMovePresenter = new UseMovePresenter(useMoveViewModel);
+        UseMoveInputBoundary useMoveInteractor = new UseMoveInteractor(
+                useMovePresenter,
+                endBattleInteractor
+        );
+        UseMoveController useMoveController = new UseMoveController(useMoveInteractor);
 
-        // === CREATE BATTLE VIEW ===
-        BattlePanel battlePanel = new BattlePanel(battle, battleController, useMoveViewModel);
+        // USE CASE 3: SWITCH POKEMON
+        SwitchPokemonViewModel switchPokemonViewModel = new SwitchPokemonViewModel();
+        SwitchPokemonOutputBoundary switchPokemonPresenter = new SwitchPokemonPresenter(switchPokemonViewModel);
+        SwitchPokemonInputBoundary switchPokemonInteractor = new SwitchPokemonInteractor(switchPokemonPresenter);
+        SwitchPokemonController switchPokemonController = new SwitchPokemonController(switchPokemonInteractor);
 
-        // Switch to battle screen
+        // VIEW
+        BattlePanel battlePanel = new BattlePanel(
+                battle,
+                useMoveController,
+                switchPokemonController,
+                useMoveViewModel,
+                switchPokemonViewModel,
+                endBattleViewModel
+        );
+
         frame.setContentPane(battlePanel);
         frame.setSize(1000, 800);
         frame.revalidate();
         frame.repaint();
+
+        System.out.println("=== ALL 4 USE CASES WIRED ===\n");
     }
 
-    private static class StartBattlePresenter implements StartBattleOutputBoundary {
-        private final BattleViewModel viewModel;
-
-        public StartBattlePresenter(BattleViewModel viewModel) {
-            this.viewModel = viewModel;
-        }
-
-        @Override
-        public void prepareSuccessView(StartBattleOutputData outputData) {
-            viewModel.setBattle(outputData.getBattle());
-            viewModel.setMessage(outputData.getMessage());
-        }
-
-        @Override
-        public void prepareFailView(String error) {
-            System.err.println("Battle start failed: " + error);
-            viewModel.setMessage("Failed to start battle: " + error);
-        }
-    }
 }

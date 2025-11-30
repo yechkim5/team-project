@@ -3,7 +3,7 @@ package view;
 import entity.Battle;
 import entity.Move;
 import entity.Pokemon;
-import interface_adapter.battle.BattleController;
+import interface_adapter.use_move.UseMoveController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,10 +20,10 @@ import java.awt.*;
 public class AttackPanel extends JPanel {
 
     private final Battle battle;
-    private final BattleController controller;
+    private final UseMoveController controller;
     private final Runnable onBack;
 
-    public AttackPanel(Battle battle, BattleController controller, Runnable onBack) {
+    public AttackPanel(Battle battle, UseMoveController controller, Runnable onBack) {
         this.battle = battle;
         this.controller = controller;
         this.onBack = onBack;

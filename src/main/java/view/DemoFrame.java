@@ -2,9 +2,14 @@ package view;
 
 import entity.*;
 import factory.pokemonFactory;
-import interface_adapter.battle.*;
-import use_case.use_move.*;
+import interface_adapter.start_battle.*;
+import interface_adapter.use_move.*;
+import interface_adapter.switch_pokemon.*;
+import interface_adapter.end_battle.*;
 import use_case.start_battle.*;
+import use_case.use_move.*;
+import use_case.switch_pokemon.*;
+import use_case.end_battle.*;
 import use_case.select_team.SelectTeamInteractor;
 import use_case.select_team.SelectTeamOutputBoundary;
 import interface_adapter.select_team.SelectTeamController;
@@ -13,6 +18,10 @@ import interface_adapter.select_team.SelectTeamViewModel;
 
 import javax.swing.*;
 
+/**
+ * Demo frame for testing different UI screens with Clean Architecture.
+ * Updated to use 4 separate use cases: StartBattle, UseMove, SwitchPokemon, EndBattle
+ */
 public class DemoFrame extends JFrame {
 
     public enum Screen {
@@ -23,14 +32,14 @@ public class DemoFrame extends JFrame {
     }
 
     public DemoFrame(Screen screen) {
-        setTitle("Pokemon UI Demo");
+        setTitle("Pokemon UI Demo - Clean Architecture");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(screen == Screen.TEAM_SELECT ? 1200 : 900, screen == Screen.TEAM_SELECT ? 700 : 600);
         setLocationRelativeTo(null);
 
         switch (screen) {
             case TEAM_SELECT:
-                // Wire up Clean Architecture dependencies
+                // Wire up Clean Architecture dependencies for team selection
                 SelectTeamViewModel viewModel = new SelectTeamViewModel();
                 SelectTeamOutputBoundary presenter = new SelectTeamPresenter(viewModel);
                 SelectTeamInteractor interactor = new SelectTeamInteractor(presenter);
@@ -43,7 +52,7 @@ public class DemoFrame extends JFrame {
                 break;
 
             case BATTLE:
-                // Create battle with real Pokemon
+                // Create battle with real Pokemon and all 4 use cases
                 setContentPane(createBattlePanel());
                 setSize(1000, 800);
                 break;
@@ -51,6 +60,7 @@ public class DemoFrame extends JFrame {
             case ATTACK:
                 // Create attack panel demo (need battle context)
                 setContentPane(createAttackPanelDemo());
+                setSize(1000, 800);
                 break;
 
             default:
@@ -73,48 +83,70 @@ public class DemoFrame extends JFrame {
 
     private JPanel createBattlePanel() {
         try {
-            // Create two demo teams
-            PokemonTeam team1 = new PokemonTeam();
-            PokemonTeam team2 = new PokemonTeam();
+            System.out.println("\n=== DEMO FRAME - WIRING 4 USE CASES ===");
 
-            // Team 1
-            pokemonFactory factory1 = new pokemonFactory("pikachu");
-            team1.addPokemon(factory1.getPokemon());
+            // Create two demo teams with 6 Pokemon each
+            PokemonTeam team1 = createDemoTeam1();
+            PokemonTeam team2 = createDemoTeam2();
 
-            pokemonFactory factory2 = new pokemonFactory("charizard");
-            team1.addPokemon(factory2.getPokemon());
+            // ============================================================
+            // USE CASE 1: START BATTLE
+            // ============================================================
+            StartBattleViewModel startBattleViewModel = new StartBattleViewModel();
+            StartBattleOutputBoundary startBattlePresenter = new StartBattlePresenter(startBattleViewModel);
+            StartBattleInputBoundary startBattleInteractor = new StartBattleInteractor(startBattlePresenter);
+            StartBattleController startBattleController = new StartBattleController(startBattleInteractor);
 
-            // Team 2
-            pokemonFactory factory3 = new pokemonFactory("blastoise");
-            team2.addPokemon(factory3.getPokemon());
+            // Execute: Create the battle
+            startBattleController.startBattle(team1, team2);
 
-            pokemonFactory factory4 = new pokemonFactory("venusaur");
-            team2.addPokemon(factory4.getPokemon());
-
-            // Start battle use case
-            BattleViewModel battleViewModel = new BattleViewModel();
-            StartBattleOutputBoundary startPresenter = new StartBattlePresenter(battleViewModel);
-            StartBattleInteractor startInteractor = new StartBattleInteractor(startPresenter);
-
-            StartBattleInputData startInput = new StartBattleInputData(team1, team2);
-            startInteractor.execute(startInput);
-
-            Battle battle = battleViewModel.getBattle();
+            Battle battle = startBattleViewModel.getBattle();
 
             if (battle == null) {
-                return new JPanel();
+                JPanel errorPanel = new JPanel();
+                errorPanel.add(new JLabel("Failed to start battle: " + startBattleViewModel.getMessage()));
+                return errorPanel;
             }
 
-            // Create use move components
-            BattleViewModel useMoveViewModel = new BattleViewModel();
+            // ============================================================
+            // USE CASE 4: END BATTLE
+            // ============================================================
+            EndBattleViewModel endBattleViewModel = new EndBattleViewModel();
+            EndBattleOutputBoundary endBattlePresenter = new EndBattlePresenter(endBattleViewModel);
+            EndBattleInputBoundary endBattleInteractor = new EndBattleInteractor(endBattlePresenter);
+
+            // ============================================================
+            // USE CASE 2: USE MOVE
+            // ============================================================
+            UseMoveViewModel useMoveViewModel = new UseMoveViewModel();
             useMoveViewModel.setBattle(battle);
 
-            UseMoveOutputBoundary useMovePresenter = new interface_adapter.battle.BattlePresenter(useMoveViewModel);
-            UseMoveInputBoundary useMoveInteractor = new UseMoveInteractor(useMovePresenter);
-            BattleController battleController = new BattleController(useMoveInteractor);
+            UseMoveOutputBoundary useMovePresenter = new UseMovePresenter(useMoveViewModel);
+            UseMoveInputBoundary useMoveInteractor = new UseMoveInteractor(
+                    useMovePresenter,
+                    endBattleInteractor  // Inject EndBattle dependency
+            );
+            UseMoveController useMoveController = new UseMoveController(useMoveInteractor);
 
-            // Create BattlePanel with proper dependencies
-            return new BattlePanel(battle, battleController, useMoveViewModel);
+            // ============================================================
+            // USE CASE 3: SWITCH POKEMON
+            // ============================================================
+            SwitchPokemonViewModel switchPokemonViewModel = new SwitchPokemonViewModel();
+            SwitchPokemonOutputBoundary switchPokemonPresenter = new SwitchPokemonPresenter(switchPokemonViewModel);
+            SwitchPokemonInputBoundary switchPokemonInteractor = new SwitchPokemonInteractor(switchPokemonPresenter);
+            SwitchPokemonController switchPokemonController = new SwitchPokemonController(switchPokemonInteractor);
+
+            System.out.println("=== ALL 4 USE CASES WIRED ===\n");
+
+            // Create BattlePanel with all controllers and view models
+            return new BattlePanel(
+                    battle,
+                    useMoveController,
+                    switchPokemonController,
+                    useMoveViewModel,
+                    switchPokemonViewModel,
+                    endBattleViewModel
+            );
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -126,25 +158,63 @@ public class DemoFrame extends JFrame {
 
     private JPanel createAttackPanelDemo() {
         try {
-            // Create a simple battle for demo
-            PokemonTeam team1 = new PokemonTeam();
-            pokemonFactory factory = new pokemonFactory("pikachu");
-            team1.addPokemon(factory.getPokemon());
+            System.out.println("\n=== ATTACK PANEL DEMO - WIRING 4 USE CASES ===");
 
-            PokemonTeam team2 = new PokemonTeam();
-            pokemonFactory factory2 = new pokemonFactory("charizard");
-            team2.addPokemon(factory2.getPokemon());
+            // Create demo teams with 6 Pokemon each
+            PokemonTeam team1 = createDemoTeam1();
+            PokemonTeam team2 = createDemoTeam2();
 
-            Battle battle = new Battle(team1, team2);
+            // ============================================================
+            // USE CASE 1: START BATTLE
+            // ============================================================
+            StartBattleViewModel startBattleViewModel = new StartBattleViewModel();
+            StartBattleOutputBoundary startBattlePresenter = new StartBattlePresenter(startBattleViewModel);
+            StartBattleInputBoundary startBattleInteractor = new StartBattleInteractor(startBattlePresenter);
+            StartBattleController startBattleController = new StartBattleController(startBattleInteractor);
 
-            // Create controller
-            BattleViewModel viewModel = new BattleViewModel();
-            viewModel.setBattle(battle);
-            UseMoveOutputBoundary presenter = new interface_adapter.battle.BattlePresenter(viewModel);
-            UseMoveInputBoundary interactor = new UseMoveInteractor(presenter);
-            BattleController controller = new BattleController(interactor);
+            startBattleController.startBattle(team1, team2);
+            Battle battle = startBattleViewModel.getBattle();
 
-            return new AttackPanel(battle, controller, () -> {});
+            if (battle == null) {
+                JPanel errorPanel = new JPanel();
+                errorPanel.add(new JLabel("Failed to create battle"));
+                return errorPanel;
+            }
+
+            // ============================================================
+            // USE CASE 4: END BATTLE
+            // ============================================================
+            EndBattleViewModel endBattleViewModel = new EndBattleViewModel();
+            EndBattleOutputBoundary endBattlePresenter = new EndBattlePresenter(endBattleViewModel);
+            EndBattleInputBoundary endBattleInteractor = new EndBattleInteractor(endBattlePresenter);
+
+            // ============================================================
+            // USE CASE 2: USE MOVE
+            // ============================================================
+            UseMoveViewModel useMoveViewModel = new UseMoveViewModel();
+            useMoveViewModel.setBattle(battle);
+
+            UseMoveOutputBoundary useMovePresenter = new UseMovePresenter(useMoveViewModel);
+            UseMoveInputBoundary useMoveInteractor = new UseMoveInteractor(
+                    useMovePresenter,
+                    endBattleInteractor
+            );
+            UseMoveController useMoveController = new UseMoveController(useMoveInteractor);
+
+            // ============================================================
+            // USE CASE 3: SWITCH POKEMON
+            // ============================================================
+            SwitchPokemonViewModel switchPokemonViewModel = new SwitchPokemonViewModel();
+            SwitchPokemonOutputBoundary switchPokemonPresenter = new SwitchPokemonPresenter(switchPokemonViewModel);
+            SwitchPokemonInputBoundary switchPokemonInteractor = new SwitchPokemonInteractor(switchPokemonPresenter);
+            SwitchPokemonController switchPokemonController = new SwitchPokemonController(switchPokemonInteractor);
+
+            System.out.println("=== ALL 4 USE CASES WIRED ===\n");
+
+            // Create just the AttackPanel for demo
+            return new AttackPanel(battle, useMoveController, () -> {
+                System.out.println("Back button clicked in demo");
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,31 +224,54 @@ public class DemoFrame extends JFrame {
         }
     }
 
-    // Presenter for Start Battle (inner class)
-    private static class StartBattlePresenter implements StartBattleOutputBoundary {
-        private final BattleViewModel viewModel;
+    /**
+     * Creates demo team 1 with 6 Pokemon
+     */
+    private PokemonTeam createDemoTeam1() throws Exception {
+        PokemonTeam team = new PokemonTeam();
 
-        public StartBattlePresenter(BattleViewModel viewModel) {
-            this.viewModel = viewModel;
-        }
+        // Add 6 Pokemon
+        team.addPokemon(new pokemonFactory("pikachu").getPokemon());
+        team.addPokemon(new pokemonFactory("charizard").getPokemon());
+        team.addPokemon(new pokemonFactory("blastoise").getPokemon());
+        team.addPokemon(new pokemonFactory("venusaur").getPokemon());
+        team.addPokemon(new pokemonFactory("snorlax").getPokemon());
+        team.addPokemon(new pokemonFactory("mewtwo").getPokemon());
 
-        @Override
-        public void prepareSuccessView(StartBattleOutputData outputData) {
-            viewModel.setBattle(outputData.getBattle());
-            viewModel.setMessage(outputData.getMessage());
-        }
+        System.out.println("Demo Team 1 created: 6 Pokemon");
+        return team;
+    }
 
-        @Override
-        public void prepareFailView(String error) {
-            System.err.println("Battle start failed: " + error);
-        }
+    /**
+     * Creates demo team 2 with 6 Pokemon
+     */
+    private PokemonTeam createDemoTeam2() throws Exception {
+        PokemonTeam team = new PokemonTeam();
+
+        // Add 6 Pokemon
+        team.addPokemon(new pokemonFactory("gengar").getPokemon());
+        team.addPokemon(new pokemonFactory("dragonite").getPokemon());
+        team.addPokemon(new pokemonFactory("gyarados").getPokemon());
+        team.addPokemon(new pokemonFactory("alakazam").getPokemon());
+        team.addPokemon(new pokemonFactory("machamp").getPokemon());
+        team.addPokemon(new pokemonFactory("articuno").getPokemon());
+
+        System.out.println("Demo Team 2 created: 6 Pokemon");
+        return team;
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            // Change this to test different screens
+            // Change this to test different screens:
+            // Screen.TEAM_SELECT - Team selection UI
+            // Screen.DETAIL - Pokemon detail panel
+            // Screen.BATTLE - Full battle UI
+            // Screen.ATTACK - Just attack panel
+
             DemoFrame frame = new DemoFrame(Screen.BATTLE);
             //DemoFrame frame = new DemoFrame(Screen.TEAM_SELECT);
+            //DemoFrame frame = new DemoFrame(Screen.ATTACK);
+
             frame.setVisible(true);
         });
     }

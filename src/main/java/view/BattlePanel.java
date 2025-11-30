@@ -1,28 +1,23 @@
 package view;
 
 import entity.*;
-import interface_adapter.battle.*;
+import interface_adapter.use_move.*;
+import interface_adapter.switch_pokemon.*;
+import interface_adapter.end_battle.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-/**
- * Full battle screen - NOW CONNECTED TO USE CASES!
- *
- * Top:    BattleStatusPanel (enemy + your Pokémon)
- * Center: Battle log (text area)
- * Bottom: CardLayout with:
- *          - CHOICE: Fight / Team buttons
- *          - MOVES : AttackPanel (2x2 move buttons + Back)
- *          - TEAM  : TeamSwitchPanel (2x2 Pokémon buttons + Back)
- */
 public class BattlePanel extends JPanel implements PropertyChangeListener {
 
     private final Battle battle;
-    private final BattleController controller;
-    private final BattleViewModel viewModel;
+    private final UseMoveController useMoveController;
+    private final SwitchPokemonController switchPokemonController;
+    private final UseMoveViewModel useMoveViewModel;
+    private final SwitchPokemonViewModel switchPokemonViewModel;
+    private final EndBattleViewModel endBattleViewModel;
 
     private final BattleStatusPanel statusPanel;
     private final JTextArea battleLog = new JTextArea(10, 40);
@@ -32,32 +27,39 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
     private AttackPanel attackPanel;
     private TeamSwitchPanel teamSwitchPanel;
 
-    public BattlePanel(Battle battle, BattleController controller, BattleViewModel viewModel) {
+    public BattlePanel(Battle battle,
+                       UseMoveController useMoveController,
+                       SwitchPokemonController switchPokemonController,
+                       UseMoveViewModel useMoveViewModel,
+                       SwitchPokemonViewModel switchPokemonViewModel,
+                       EndBattleViewModel endBattleViewModel) {
         this.battle = battle;
-        this.controller = controller;
-        this.viewModel = viewModel;
+        this.useMoveController = useMoveController;
+        this.switchPokemonController = switchPokemonController;
+        this.useMoveViewModel = useMoveViewModel;
+        this.switchPokemonViewModel = switchPokemonViewModel;
+        this.endBattleViewModel = endBattleViewModel;
 
-        // Listen to view model changes
-        viewModel.addPropertyChangeListener(this);
+        // Register listeners
+        System.out.println("[BattlePanel] Registering property change listeners...");
+        useMoveViewModel.addPropertyChangeListener(this);
+        switchPokemonViewModel.addPropertyChangeListener(this);
+        endBattleViewModel.addPropertyChangeListener(this);
 
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Title
         JLabel title = new JLabel("Battle Arena", SwingConstants.CENTER);
         title.setFont(title.getFont().deriveFont(Font.BOLD, 22f));
         add(title, BorderLayout.NORTH);
 
-        // Top: status area with Pokemon info
         Pokemon yourPokemon = battle.getTeam1().getActivePokemon();
         Pokemon enemyPokemon = battle.getTeam2().getActivePokemon();
         statusPanel = new BattleStatusPanel(yourPokemon, enemyPokemon);
 
-        // Create vertical split: status on top, log in middle
         JPanel topSection = new JPanel(new BorderLayout());
         topSection.add(statusPanel, BorderLayout.NORTH);
 
-        // Battle log
         battleLog.setEditable(false);
         battleLog.setLineWrap(true);
         battleLog.setWrapStyleWord(true);
@@ -68,19 +70,18 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
 
         add(topSection, BorderLayout.CENTER);
 
-        // Bottom: CardLayout with choice/moves/team
         setupBottomPanels();
         add(bottomCards, BorderLayout.SOUTH);
 
-        showChoice(); // start with Fight/Team visible
+        showChoice();
 
-        // Initial battle message
         battleLog.append("Battle Start!\n");
         battleLog.append(yourPokemon.getName() + " vs " + enemyPokemon.getName() + "\n\n");
+
+        System.out.println("[BattlePanel] Initialized successfully");
     }
 
     private void setupBottomPanels() {
-        // CHOICE panel: Fight / Team buttons
         choicePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
 
         JButton fightButton = new JButton("Fight");
@@ -89,31 +90,28 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
         fightButton.setFont(fightButton.getFont().deriveFont(16f));
         teamButton.setFont(teamButton.getFont().deriveFont(16f));
 
-
-        fightButton.addActionListener(e -> {
-            // Allow both players to see moves on their turn!
-            showMoves();
-        });
-
+        fightButton.addActionListener(e -> showMoves());
         teamButton.addActionListener(e -> showTeam());
 
         choicePanel.add(fightButton);
         choicePanel.add(teamButton);
 
-        // MOVES panel: AttackPanel - NOW CONNECTED TO CONTROLLER!
-        Pokemon yourPokemon = battle.getTeam1().getActivePokemon();
-        attackPanel = new AttackPanel(battle, controller, this::showChoice);
+        attackPanel = new AttackPanel(battle, useMoveController, this::showChoice);
 
-        // TEAM panel: TeamSwitchPanel with Back AND battle reference for switching
         Pokemon[] teamArray = battle.getCurrentTurnTeam().getTeam().toArray(new Pokemon[0]);
-        teamSwitchPanel = new TeamSwitchPanel(teamArray, battle, this::showChoice, this::handleSwitch);
+        teamSwitchPanel = new TeamSwitchPanel(
+                teamArray,
+                battle,
+                switchPokemonController,
+                this::showChoice,
+                this::handleSwitch
+        );
 
         bottomCards.add(choicePanel,   "CHOICE");
         bottomCards.add(attackPanel,   "MOVES");
         bottomCards.add(teamSwitchPanel, "TEAM");
     }
 
-    // CardLayout helpers
     private void showChoice() {
         CardLayout cl = (CardLayout) bottomCards.getLayout();
         cl.show(bottomCards, "CHOICE");
@@ -122,9 +120,8 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void showMoves() {
-        // Refresh attack panel with current Pokemon's moves
         bottomCards.remove(attackPanel);
-        attackPanel = new AttackPanel(battle, controller, this::showChoice);
+        attackPanel = new AttackPanel(battle, useMoveController, this::showChoice);
         bottomCards.add(attackPanel, "MOVES");
 
         CardLayout cl = (CardLayout) bottomCards.getLayout();
@@ -134,10 +131,15 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void showTeam() {
-        // Refresh team panel with current team's Pokemon
         bottomCards.remove(teamSwitchPanel);
         Pokemon[] teamArray = battle.getCurrentTurnTeam().getTeam().toArray(new Pokemon[0]);
-        teamSwitchPanel = new TeamSwitchPanel(teamArray, battle, this::showChoice, this::handleSwitch);
+        teamSwitchPanel = new TeamSwitchPanel(
+                teamArray,
+                battle,
+                switchPokemonController,
+                this::showChoice,
+                this::handleSwitch
+        );
         bottomCards.add(teamSwitchPanel, "TEAM");
 
         CardLayout cl = (CardLayout) bottomCards.getLayout();
@@ -146,49 +148,114 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
         repaint();
     }
 
-    // Called when a Pokemon is switched
     private void handleSwitch() {
         refreshStatus();
-        // Log the switch in battle log
-        Pokemon newActive = battle.getCurrentTurnTeam().getActivePokemon();
-        battleLog.append("Go, " + newActive.getName() + "!\n");
-        battleLog.append("It's now " + (battle.isTeam1Turn() ? "Player 1" : "Player 2") + "'s turn.\n\n");
-        battleLog.setCaretPosition(battleLog.getDocument().getLength());
     }
 
-    // Called when battle state changes (move executed)
     public void refreshStatus() {
-        Pokemon yourPokemon = battle.getTeam1().getActivePokemon();
-        Pokemon enemyPokemon = battle.getTeam2().getActivePokemon();
-        statusPanel.showStatus(yourPokemon, enemyPokemon);
-        showChoice(); // Return to main menu after move
+        try {
+            Pokemon yourPokemon = battle.getTeam1().getActivePokemon();
+            Pokemon enemyPokemon = battle.getTeam2().getActivePokemon();
+            statusPanel.showStatus(yourPokemon, enemyPokemon);
+            showChoice();
+        } catch (Exception e) {
+            System.err.println("[BattlePanel] Error refreshing status: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(BattleViewModel.MESSAGE_PROPERTY)) {
-            String message = viewModel.getMessage();
-            if (message != null && !message.isEmpty()) {
-                battleLog.append(message + "\n");
-                battleLog.setCaretPosition(battleLog.getDocument().getLength());
+        try {
+            String propertyName = evt.getPropertyName();
+            System.out.println("[BattlePanel] Property changed: " + propertyName + " from " + evt.getSource().getClass().getSimpleName());
+
+            // Handle UseMove events
+            if (evt.getSource() == useMoveViewModel) {
+                if (UseMoveViewModel.MESSAGE_PROPERTY.equals(propertyName)) {
+                    String message = useMoveViewModel.getMessage();
+                    System.out.println("[BattlePanel] UseMove message: " + message);
+                    if (message != null && !message.isEmpty()) {
+                        appendToBattleLog(message);
+                    }
+                }
+
+                if (UseMoveViewModel.BATTLE_PROPERTY.equals(propertyName)) {
+                    System.out.println("[BattlePanel] Battle state changed, refreshing status");
+                    refreshStatus();
+                }
+            }
+
+            // Handle SwitchPokemon events
+            if (evt.getSource() == switchPokemonViewModel) {
+                if (SwitchPokemonViewModel.MESSAGE_PROPERTY.equals(propertyName)) {
+                    String message = switchPokemonViewModel.getMessage();
+                    System.out.println("[BattlePanel] Switch message: " + message);
+                    if (message != null && !message.isEmpty()) {
+                        appendToBattleLog(message);
+
+                        if (switchPokemonViewModel.isSwitchSuccessful()) {
+                            System.out.println("[BattlePanel] Switch successful, refreshing status");
+                            refreshStatus();
+                        }
+                    }
+                }
+            }
+
+            // Handle EndBattle events
+            if (evt.getSource() == endBattleViewModel) {
+                if (EndBattleViewModel.BATTLE_END_PROPERTY.equals(propertyName)) {
+                    if (endBattleViewModel.isBattleEnded()) {
+                        System.out.println("[BattlePanel] Battle ended!");
+                        String message = endBattleViewModel.getMessage();
+
+                        appendToBattleLog("\n" + message);
+
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(
+                                    this,
+                                    message,
+                                    "Battle Over",
+                                    JOptionPane.INFORMATION_MESSAGE
+                            );
+                        });
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("[BattlePanel] ERROR in propertyChange: " + e.getMessage());
+            e.printStackTrace();
+
+            // Try to append error to battle log
+            try {
+                appendToBattleLog("[ERROR] Something went wrong. Check console.");
+            } catch (Exception e2) {
+                System.err.println("[BattlePanel] Failed to append error to battle log: " + e2.getMessage());
             }
         }
+    }
 
-        if (evt.getPropertyName().equals(BattleViewModel.BATTLE_PROPERTY)) {
-            refreshStatus();
-
-            // Check if battle ended
-            if (viewModel.isBattleEnded()) {
-                PokemonTeam winner = viewModel.getWinner();
-                String winnerName = winner == battle.getTeam1() ? "Player 1" : "Player 2";
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        winnerName + " wins the battle!",
-                        "Battle Over",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
+    /**
+     * Safely append text to battle log with error handling
+     */
+    private void appendToBattleLog(String message) {
+        try {
+            if (message != null && !message.isEmpty()) {
+                SwingUtilities.invokeLater(() -> {
+                    try {
+                        battleLog.append(message + "\n");
+                        battleLog.setCaretPosition(battleLog.getDocument().getLength());
+                        System.out.println("[BattlePanel] Appended to battle log: " + message.substring(0, Math.min(50, message.length())) + "...");
+                    } catch (Exception e) {
+                        System.err.println("[BattlePanel] Failed to append to battle log: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                });
             }
+        } catch (Exception e) {
+            System.err.println("[BattlePanel] Error in appendToBattleLog: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
