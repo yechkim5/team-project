@@ -14,14 +14,7 @@ import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-//import music
-import Music.MusicPlayer;
-import Music.Mp3MusicPlayer;
-
-
 public class Main {
-
-    public static Mp3MusicPlayer battleMusic;
 
     public static void main(String[] args) {
         // Load or initialize game state
@@ -98,14 +91,8 @@ public class Main {
                                 );
 
                                 if (confirm == JOptionPane.YES_OPTION) {
-                                    // start music
-                                    MusicPlayer musicPlayer =
-                                            new Mp3MusicPlayer("src/main/java/Music/BattleMusic.mp3"); // path to your mp3
-                                    musicPlayer.playMusic();
-
                                     // Pass teams from interactor (source of truth)
                                     startBattle(frame, team1, team2);
-
                                 } else {
                                     battleStarted[0] = false; // Reset if user declines
                                 }

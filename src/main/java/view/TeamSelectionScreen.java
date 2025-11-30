@@ -1,11 +1,16 @@
 package view;
 
+import entity.GameState;
 import entity.Pokemon;
 import entity.Move;
 import entity.PokemonTeam;
 import factory.pokemonFactory;
 import interface_adapter.select_team.SelectTeamController;
 import interface_adapter.select_team.SelectTeamViewModel;
+
+import use_case.select_team.SelectTeamOutputBoundary;
+import interface_adapter.select_team.SelectTeamPresenter;
+import use_case.select_team.SelectTeamInteractor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +20,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import javax.swing.filechooser.*; //file selector window(should handle both loading and saving)
 
 public class TeamSelectionScreen extends JPanel implements PropertyChangeListener {
     // List of 20 pokemon names (using names as IDs)
@@ -24,6 +33,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         "salamence", "gardevoir", "machamp", "alakazam", "gyarados",
         "snorlax", "arcanine", "lapras", "aerodactyl", "mewtwo"
     };
+    private static String[] pokemonNames;
 
     private static final int MAX_TEAM_SIZE = 6;
 
@@ -62,7 +72,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         this.controller = controller;
         this.viewModel = viewModel;
         this.currentPlayerNumber = viewModel.getPlayerNumber();
-        
+
         // Listen to view model changes
         viewModel.addPropertyChangeListener(this);
 
@@ -125,6 +135,22 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         bottomLeft.add(finalizeTeamButton);
         bottomLeft.add(Box.createVerticalStrut(5));
         bottomLeft.add(removeMoveButton);
+
+        JButton saveButton = new JButton("Save Game");
+        saveButton.setForeground(new Color(0, 100, 0));
+        saveButton.setFont(saveButton.getFont().deriveFont(Font.BOLD, 14f));
+        saveButton.addActionListener(e -> saveGame());
+
+        JButton loadButton = new JButton("Load Game");
+        loadButton.setForeground(new Color(0, 0, 139));
+        loadButton.setFont(loadButton.getFont().deriveFont(Font.BOLD, 14f));
+        loadButton.addActionListener(e -> loadGame());
+
+        // Add spacing and buttons
+        bottomLeft.add(Box.createVerticalStrut(20));
+        bottomLeft.add(saveButton);
+        bottomLeft.add(Box.createVerticalStrut(8));
+        bottomLeft.add(loadButton);
 
         leftColumn.setPreferredSize(new Dimension(320, 0));
 
@@ -286,7 +312,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         controller.finalizeTeam(currentPlayerNumber);
     }
 
-    private void updateTeamDisplay(PokemonTeam team) {
+    public void updateTeamDisplay(PokemonTeam team) {
         teamModel.clear();
         if (team != null) {
             List<Pokemon> pokemonList = team.getTeam();
@@ -385,4 +411,108 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         // Access through view model (which gets it from use case)
         return viewModel.getTeam();
     }
+
+    // ==================== MANUAL SAVE / LOAD ====================
+
+    private void saveGame() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new File("resources"));
+        chooser.setDialogTitle("Save Your Pokémon Team");
+        chooser.setFileFilter(new FileNameExtensionFilter("Pokémon Save File (*.json)", "json"));
+        chooser.setSelectedFile(new File("My Team Save.json"));
+
+        int result = chooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            String path = file.getAbsolutePath();
+            if (!path.toLowerCase().endsWith(".json")) {
+                path += ".json";
+            }
+
+            if (new File(path).exists()) {
+                int confirm = JOptionPane.showConfirmDialog(this,
+                        "File already exists! Overwrite?", "Confirm",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                if (confirm != JOptionPane.YES_OPTION) return;
+            }
+
+            try {
+                GameState state = app.GameOrchestrator.getCurrent();
+                String json = use_case.auto_save.OrgJsonGameStateSerializer.toJson(state).toString(4);
+                Files.createDirectories(Paths.get("resources"));
+                Files.writeString(Paths.get(path), json);
+
+                JOptionPane.showMessageDialog(this,
+                        "Saved successfully!\n" + new File(path).getName(),
+                        "Save Complete", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Save failed: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void loadGame() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new File("resources"));
+        chooser.setDialogTitle("Load a Saved Game");
+        chooser.setFileFilter(new FileNameExtensionFilter("Pokémon Save File (*.json)", "json"));
+
+        int result = chooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            try {
+                String content = Files.readString(Paths.get(file.getAbsolutePath()));
+                org.json.JSONObject json = new org.json.JSONObject(content);
+                GameState loaded = use_case.auto_save.OrgJsonGameStateSerializer.fromJson(json);
+
+                if (loaded != null) {
+                    app.GameOrchestrator.updateState(loaded);
+                    reloadTeamSelectionScreen();
+
+                    JOptionPane.showMessageDialog(this,
+                            "Loaded: " + file.getName() + "\nYour team is ready!",
+                            "Load Complete", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Load failed: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void reloadTeamSelectionScreen() {
+        GameState state = app.GameOrchestrator.getCurrent();
+        int playerNum = (state.activeTeamSelector() == GameState.Player.PLAYER1) ? 1 : 2;
+
+        SelectTeamViewModel viewModel = new SelectTeamViewModel();
+        SelectTeamOutputBoundary presenter = new SelectTeamPresenter(viewModel);
+        SelectTeamInteractor interactor = new SelectTeamInteractor(presenter);
+
+        interactor.restoreTeam(1, state.player1Team());
+        interactor.restoreTeam(2, state.player2Team());
+
+        SelectTeamController controller = new SelectTeamController(interactor);
+        viewModel.setPlayerNumber(playerNum);
+        interactor.getCurrentTeam(playerNum);
+
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (frame != null) {
+            frame.getContentPane().removeAll();
+
+            TeamSelectionScreen newScreen = new TeamSelectionScreen(controller, viewModel);
+
+            PokemonTeam currentTeam = playerNum == 1 ? state.player1Team() : state.player2Team();
+            newScreen.updateTeamDisplay(currentTeam);
+            newScreen.finalizeTeamButton.setEnabled(currentTeam.getTeam().size() == 6);
+
+            frame.setContentPane(newScreen);
+            frame.revalidate();
+            frame.repaint();
+            frame.setSize(1200, 700);
+        }
+    }
+
 }
