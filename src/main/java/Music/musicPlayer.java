@@ -2,11 +2,11 @@ package Music;
 public interface musicPlayer {
 
     // Start (or restart) playing the MP3
-    void play();
+    void playMusic();
 
     // Stop playing the MP3
-    void stop();
+    void stopMusic();
 
-    // For information only - you can ignore if not needed
+    // For information only (not important)
     boolean isPlaying();
 }

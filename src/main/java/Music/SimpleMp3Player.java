@@ -1,66 +1,39 @@
-package app;
-// SimpleMp3Player.java
-import Music.musicPlayer;
+package Music;
+
 import javazoom.jl.player.Player;
 import java.io.FileInputStream;
-import java.io.BufferedInputStream;
 
-public class SimpleMp3Player implements musicPlayer {
+public class Mp3MusicPlayer implements MusicPlayer {
 
-    private final String filePath;   // path to your single MP3
-    private volatile boolean playing;
-    private Thread playThread;
     private Player player;
+    private Thread playThread;
+    private final String filePath;
 
-    public SimpleMp3Player(String filePath) {
+    public Mp3MusicPlayer(String filePath) {
         this.filePath = filePath;
     }
 
     @Override
-    public synchronized void play() {
-        // If already playing, do nothing
-        if (playing) {
-            return;
-        }
-
-        playing = true;
-
-        // New thread so GUI does not freeze
-        playThread = new Thread(() -> {
-            try (FileInputStream fis = new FileInputStream(filePath);
-                 BufferedInputStream bis = new BufferedInputStream(fis)) {
-
-                player = new Player(bis);
-                player.play();  // plays until the end or until close() is called
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                playing = false;
-            }
-        });
-
+    public void playMusic() {
+        stopMusic();
+        playThread = new Thread(this::playTask);
         playThread.start();
     }
 
-    @Override
-    public synchronized void stop() {
-        // Tell the player to stop
-        if (player != null) {
-            player.close();   // this makes player.play() return
-            player = null;
-        }
-
-        playing = false;
-
-        // Interrupt the thread if still running
-        if (playThread != null && playThread.isAlive()) {
-            playThread.interrupt();
+    private void playTask() {
+        try (FileInputStream fis = new FileInputStream(filePath)) {
+            player = new Player(fis);
+            player.play();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @Override
-    public boolean isPlaying() {
-        return playing;
+    public void stopMusic() {
+        try {
+            if (player != null) player.close();
+            if (playThread != null && playThread.isAlive()) playThread.interrupt();
+        } catch (Exception ignored) {}
     }
 }
