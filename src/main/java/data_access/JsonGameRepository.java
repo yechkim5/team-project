@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import use_case.game_state_persistence.OrgJsonGameStateSerializer;
 
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 
 public class JsonGameRepository {
@@ -13,30 +14,53 @@ public class JsonGameRepository {
 
     public static void save(GameState state) {
         try {
-            Files.createDirectories(Paths.get("resources"));
+            // Create parent directory if missing (e.g. "resources" or "test_resources")
+            Files.createDirectories(Paths.get(saveFile).getParent());
+
             JSONObject json = OrgJsonGameStateSerializer.toJson(state);
-            Files.writeString(Paths.get(saveFile), json.toString(4)); // pretty-print
+            Files.writeString(Paths.get(saveFile), json.toString(4)); // pretty print
         } catch (Exception e) {
             System.err.println("Auto-save failed: " + e.getMessage());
+            // Optional: e.printStackTrace(); // uncomment during debugging
         }
     }
 
     public static GameState load() {
         try {
-            String content = Files.readString(Paths.get(saveFile));
-            if (content.isBlank()) {
+            // Explicitly handle missing file instead of letting readString() throw
+            if (!Files.exists(Paths.get(saveFile))) {
                 return null;
             }
+
+            String content = Files.readString(Paths.get(saveFile));
+
+            if (content == null || content.isBlank()) {
+                return null;
+            }
+
             JSONObject json = new JSONObject(content);
-            System.out.print(content);
+
+            // REMOVED THIS LINE → IT WAS BREAKING TESTS:
+            // System.out.print(content);
+
             return OrgJsonGameStateSerializer.fromJson(json);
+
+        } catch (NoSuchFileException e) {
+            // File doesn't exist → normal case
+            return null;
         } catch (Exception e) {
-            System.err.println("Auto-load failed: " + e.getMessage());
-            return null; // no save exists or corrupt
+            System.err.println("Auto-load failed (" + saveFile + "): " + e.getMessage());
+            return null; // corrupt or unreadable file
         }
     }
-    //Saves the new path that you get from the file selector (after loading file)
+
+    // Used when user selects a file via JFileChooser
     public static void setSaveFile(String newSaveFile) {
         saveFile = newSaveFile;
+    }
+
+    // Optional: helpful for debugging / testing
+    public static String getCurrentSavePath() {
+        return saveFile;
     }
 }

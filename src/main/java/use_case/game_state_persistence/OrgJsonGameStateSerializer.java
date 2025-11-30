@@ -83,12 +83,14 @@ public class OrgJsonGameStateSerializer {
         Pokemon pokemon = new Pokemon(name, baseStats, types);
         pokemon.setCurrentHP(jsonP.getInt("currentHP"));
 
+        Move[] moves = new Move[4];
         JSONArray movesArr = jsonP.getJSONArray("moves");
-        Move[] moves = new Move[movesArr.length()];
-        for (int i = 0; i < movesArr.length(); i++) {
+
+        for (int i = 0; i < movesArr.length() && i < 4; i++) {
             moves[i] = fromJsonMove(movesArr.getJSONObject(i));
         }
-        pokemon.setMoves(moves);  // Using the new setter
+
+        pokemon.setMoves(moves);
         return pokemon;
     }
 
