@@ -1,4 +1,4 @@
-package use_case.auto_save;
+package use_case.game_state_persistence;
 
 import entity.*;
 import org.json.JSONArray;

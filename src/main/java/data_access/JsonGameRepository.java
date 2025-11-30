@@ -2,7 +2,7 @@ package data_access;
 
 import entity.GameState;
 import org.json.JSONObject;
-import use_case.auto_save.OrgJsonGameStateSerializer;
+import use_case.game_state_persistence.OrgJsonGameStateSerializer;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
