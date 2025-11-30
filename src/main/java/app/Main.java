@@ -21,6 +21,8 @@ import Music.Mp3MusicPlayer;
 
 public class Main {
 
+    public static Mp3MusicPlayer battleMusic;
+
     public static void main(String[] args) {
         // Load or initialize game state
         GameOrchestrator.forceNewGame();  // Start fresh
