@@ -76,4 +76,8 @@ public class Pokemon {
     public String getBackSpriteUrl() {
         return backSpriteUrl;
     }
+
+    public void setMoves(Move[] moves) { this.moves = moves; }
+
+    public void setCurrentHP(int currentHP) { this.currentHP = currentHP; }
 }

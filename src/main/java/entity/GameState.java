@@ -1,34 +1,61 @@
 package entity;
 
-import java.util.List;
-
 /**
- * GameState is an IMMUTABLE snapshot of the ENTIRE game at any moment.
- * Every time the player does something (picks a Pokémon, attacks, switches, etc.),
+ * GameState is an IMMUTABLE snapshot of the entire game at any moment.
+ * Every time anything changes (pick Pokémon, attack, switch, etc.),
  * we create a NEW GameState and auto-save it to JSON.
  *
- * Why immutable + record?
- * → Prevents accidental changes
+ * Why a record?
+ * → 100% immutable (no bugs from accidental changes)
+ * → Super clean and modern Java
+ * → Perfect for saving/loading
  */
 public record GameState(
-        Screen currentScreen,  // Which major screen the player is currently on
+        // What screen are we on?
+        Screen currentScreen,
 
-        // During team selection: whose turn is it to pick a Pokémon?
-        // PLAYER1 = human player, PLAYER2 = opponent (or second player in 2P mode)
-        Player activeTeamSelector,          // who is picking team
-        PokemonTeam playerTeam, // Player's team — max 5 Pokémon, with current HP, moves, PP
-        PokemonTeam opponentTeam,
-        BattlePhase battlePhase,            // null if not in battle
+        // During team selection: whose turn is it to pick?
+        Player activeTeamSelector,
+
+        // Player 1's full team (max 5 Pokémon, with HP, moves, PP)
+        PokemonTeam player1Team,
+
+        // Player 2's full team (max 5 Pokémon) — PvP only, no AI
+        PokemonTeam player2Team,
+
+        // Battle details — null if not in battle
+        BattlePhase battlePhase,
+
+        // Current tower level (progress in the game)
         int currentTowerLevel,
+
+        // Highest level ever reached
         int highScore
 ) {
-    public enum Screen { TEAM_SELECTION, BATTLE, GAME_OVER }
-    public enum Player { PLAYER1, PLAYER2 }
-    public enum Turn { PLAYER, OPPONENT }
 
+    /** The three main screens in the game */
+    public enum Screen {
+        TEAM_SELECTION,  // Players are building their teams
+        BATTLE,          // PvP battle is active
+        GAME_OVER        // One player won or game ended
+    }
+
+    /** The two human players — this is PvP only */
+    public enum Player {
+        PLAYER1,
+        PLAYER2
+    }
+
+    /** Whose turn it is during battle */
+    public enum Turn {
+        PLAYER1,
+        PLAYER2
+    }
+
+    /** All info needed while a battle is running */
     public record BattlePhase(
-            Turn currentTurn,
-    int playerActiveIndex,
-    int opponentActiveIndex
+            Turn currentTurn,           // Who moves now
+            int player1ActiveIndex,     // Active Pokémon index for Player 1 (0–4)
+            int player2ActiveIndex      // Active Pokémon index for Player 2 (0–4)
     ) {}
 }
