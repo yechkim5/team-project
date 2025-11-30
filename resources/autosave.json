@@ -1,147 +1,286 @@
 {
     "player2Team": {"pokemons": [
         {
-            "types": ["electric"],
-            "currentHP": 35,
-            "moves": [{
-                "moveClass": "physical",
-                "maxPp": 20,
-                "moveDescription": "A Pokemon move",
-                "currentPp": 20,
-                "moveAccuracy": 100,
-                "moveType": "normal",
-                "moveName": "play-nice"
-            }],
-            "name": "pikachu",
+            "types": ["fighting"],
+            "currentHP": 90,
+            "moves": [
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "normal",
+                    "moveName": "facade"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "fighting",
+                    "moveName": "seismic-toss"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "fighting",
+                    "moveName": "focus-punch"
+                },
+                {
+                    "maxPp": 10,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 10,
+                    "moveAccuracy": 100,
+                    "moveType": "fighting",
+                    "moveName": "coaching"
+                }
+            ],
+            "name": "machamp",
             "baseStats": {
-                "maxHp": 35,
-                "specialDefense": 50,
-                "defense": 40,
-                "attack": 55,
-                "specialAttack": 50,
-                "speed": 90
+                "maxHp": 90,
+                "specialDefense": 85,
+                "defense": 80,
+                "attack": 130,
+                "specialAttack": 65,
+                "speed": 55
             }
         },
         {
             "types": [
-                "fire",
+                "psychic",
+                "fairy"
+            ],
+            "currentHP": 68,
+            "moves": [
+                {
+                    "maxPp": 5,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 5,
+                    "moveAccuracy": 100,
+                    "moveType": "fairy",
+                    "moveName": "misty-explosion"
+                },
+                {
+                    "maxPp": 15,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 15,
+                    "moveAccuracy": 100,
+                    "moveType": "dark",
+                    "moveName": "torment"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "normal",
+                    "moveName": "facade"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "psychic",
+                    "moveName": "reflect"
+                }
+            ],
+            "name": "gardevoir",
+            "baseStats": {
+                "maxHp": 68,
+                "specialDefense": 115,
+                "defense": 65,
+                "attack": 65,
+                "specialAttack": 125,
+                "speed": 80
+            }
+        },
+        {
+            "types": ["normal"],
+            "currentHP": 160,
+            "moves": [
+                {
+                    "maxPp": 10,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 10,
+                    "moveAccuracy": 100,
+                    "moveType": "poison",
+                    "moveName": "gastro-acid"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "normal",
+                    "moveName": "facade"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "fighting",
+                    "moveName": "seismic-toss"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "psychic",
+                    "moveName": "reflect"
+                }
+            ],
+            "name": "snorlax",
+            "baseStats": {
+                "maxHp": 160,
+                "specialDefense": 110,
+                "defense": 65,
+                "attack": 110,
+                "specialAttack": 65,
+                "speed": 30
+            }
+        },
+        {
+            "types": [
+                "water",
+                "ice"
+            ],
+            "currentHP": 130,
+            "moves": [
+                {
+                    "maxPp": 5,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 5,
+                    "moveAccuracy": 100,
+                    "moveType": "normal",
+                    "moveName": "block"
+                },
+                {
+                    "maxPp": 10,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 10,
+                    "moveAccuracy": 100,
+                    "moveType": "normal",
+                    "moveName": "mimic"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "psychic",
+                    "moveName": "reflect"
+                },
+                {
+                    "maxPp": 15,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 15,
+                    "moveAccuracy": 100,
+                    "moveType": "psychic",
+                    "moveName": "psywave"
+                }
+            ],
+            "name": "lapras",
+            "baseStats": {
+                "maxHp": 130,
+                "specialDefense": 95,
+                "defense": 80,
+                "attack": 85,
+                "specialAttack": 85,
+                "speed": 60
+            }
+        },
+        {
+            "types": [
+                "dragon",
                 "flying"
             ],
-            "currentHP": 78,
-            "moves": [{
-                "moveClass": "physical",
-                "maxPp": 10,
-                "moveDescription": "A Pokemon move",
-                "currentPp": 10,
-                "moveAccuracy": 100,
-                "moveType": "dragon",
-                "moveName": "dragon-tail"
-            }],
-            "name": "charizard",
-            "baseStats": {
-                "maxHp": 78,
-                "specialDefense": 85,
-                "defense": 78,
-                "attack": 84,
-                "specialAttack": 109,
-                "speed": 100
-            }
-        },
-        {
-            "types": ["water"],
-            "currentHP": 79,
-            "moves": [{
-                "moveClass": "physical",
-                "maxPp": 10,
-                "moveDescription": "A Pokemon move",
-                "currentPp": 10,
-                "moveAccuracy": 100,
-                "moveType": "dragon",
-                "moveName": "dragon-tail"
-            }],
-            "name": "blastoise",
-            "baseStats": {
-                "maxHp": 79,
-                "specialDefense": 105,
-                "defense": 100,
-                "attack": 83,
-                "specialAttack": 85,
-                "speed": 78
-            }
-        },
-        {
-            "types": [
-                "grass",
-                "poison"
+            "currentHP": 91,
+            "moves": [
+                {
+                    "maxPp": 10,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 10,
+                    "moveAccuracy": 100,
+                    "moveType": "water",
+                    "moveName": "aqua-tail"
+                },
+                {
+                    "maxPp": 15,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 15,
+                    "moveAccuracy": 100,
+                    "moveType": "dragon",
+                    "moveName": "breaking-swipe"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "water",
+                    "moveName": "aqua-jet"
+                }
             ],
-            "currentHP": 80,
-            "moves": [{
-                "moveClass": "physical",
-                "maxPp": 10,
-                "moveDescription": "A Pokemon move",
-                "currentPp": 10,
-                "moveAccuracy": 100,
-                "moveType": "ground",
-                "moveName": "earth-power"
-            }],
-            "name": "venusaur",
+            "name": "dragonite",
             "baseStats": {
-                "maxHp": 80,
+                "maxHp": 91,
                 "specialDefense": 100,
-                "defense": 83,
-                "attack": 82,
+                "defense": 95,
+                "attack": 134,
                 "specialAttack": 100,
                 "speed": 80
             }
         },
         {
-            "types": [
-                "fighting",
-                "steel"
+            "types": ["psychic"],
+            "currentHP": 106,
+            "moves": [
+                {
+                    "maxPp": 15,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 15,
+                    "moveAccuracy": 100,
+                    "moveType": "dark",
+                    "moveName": "torment"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "normal",
+                    "moveName": "pay-day"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "psychic",
+                    "moveName": "psycho-cut"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "fighting",
+                    "moveName": "seismic-toss"
+                }
             ],
-            "currentHP": 70,
-            "moves": [{
-                "moveClass": "physical",
-                "maxPp": 10,
-                "moveDescription": "A Pokemon move",
-                "currentPp": 10,
-                "moveAccuracy": 100,
-                "moveType": "psychic",
-                "moveName": "heal-pulse"
-            }],
-            "name": "lucario",
+            "name": "mewtwo",
             "baseStats": {
-                "maxHp": 70,
-                "specialDefense": 70,
-                "defense": 70,
+                "maxHp": 106,
+                "specialDefense": 90,
+                "defense": 90,
                 "attack": 110,
-                "specialAttack": 115,
-                "speed": 90
-            }
-        },
-        {
-            "types": [
-                "ghost",
-                "poison"
-            ],
-            "currentHP": 60,
-            "moves": [{
-                "moveClass": "physical",
-                "maxPp": 15,
-                "moveDescription": "A Pokemon move",
-                "currentPp": 15,
-                "moveAccuracy": 100,
-                "moveType": "dark",
-                "moveName": "torment"
-            }],
-            "name": "gengar",
-            "baseStats": {
-                "maxHp": 60,
-                "specialDefense": 75,
-                "defense": 60,
-                "attack": 65,
-                "specialAttack": 130,
-                "speed": 110
+                "specialAttack": 154,
+                "speed": 130
             }
         }
     ]},
@@ -149,147 +288,286 @@
     "currentScreen": "TEAM_SELECTION",
     "player1Team": {"pokemons": [
         {
-            "types": ["electric"],
-            "currentHP": 35,
-            "moves": [{
-                "moveClass": "physical",
-                "maxPp": 20,
-                "moveDescription": "A Pokemon move",
-                "currentPp": 20,
-                "moveAccuracy": 100,
-                "moveType": "normal",
-                "moveName": "play-nice"
-            }],
-            "name": "pikachu",
+            "types": ["fighting"],
+            "currentHP": 90,
+            "moves": [
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "normal",
+                    "moveName": "facade"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "fighting",
+                    "moveName": "seismic-toss"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "fighting",
+                    "moveName": "focus-punch"
+                },
+                {
+                    "maxPp": 10,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 10,
+                    "moveAccuracy": 100,
+                    "moveType": "fighting",
+                    "moveName": "coaching"
+                }
+            ],
+            "name": "machamp",
             "baseStats": {
-                "maxHp": 35,
-                "specialDefense": 50,
-                "defense": 40,
-                "attack": 55,
-                "specialAttack": 50,
-                "speed": 90
+                "maxHp": 90,
+                "specialDefense": 85,
+                "defense": 80,
+                "attack": 130,
+                "specialAttack": 65,
+                "speed": 55
             }
         },
         {
             "types": [
-                "fire",
+                "psychic",
+                "fairy"
+            ],
+            "currentHP": 68,
+            "moves": [
+                {
+                    "maxPp": 5,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 5,
+                    "moveAccuracy": 100,
+                    "moveType": "fairy",
+                    "moveName": "misty-explosion"
+                },
+                {
+                    "maxPp": 15,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 15,
+                    "moveAccuracy": 100,
+                    "moveType": "dark",
+                    "moveName": "torment"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "normal",
+                    "moveName": "facade"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "psychic",
+                    "moveName": "reflect"
+                }
+            ],
+            "name": "gardevoir",
+            "baseStats": {
+                "maxHp": 68,
+                "specialDefense": 115,
+                "defense": 65,
+                "attack": 65,
+                "specialAttack": 125,
+                "speed": 80
+            }
+        },
+        {
+            "types": ["normal"],
+            "currentHP": 160,
+            "moves": [
+                {
+                    "maxPp": 10,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 10,
+                    "moveAccuracy": 100,
+                    "moveType": "poison",
+                    "moveName": "gastro-acid"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "normal",
+                    "moveName": "facade"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "fighting",
+                    "moveName": "seismic-toss"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "psychic",
+                    "moveName": "reflect"
+                }
+            ],
+            "name": "snorlax",
+            "baseStats": {
+                "maxHp": 160,
+                "specialDefense": 110,
+                "defense": 65,
+                "attack": 110,
+                "specialAttack": 65,
+                "speed": 30
+            }
+        },
+        {
+            "types": [
+                "water",
+                "ice"
+            ],
+            "currentHP": 130,
+            "moves": [
+                {
+                    "maxPp": 5,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 5,
+                    "moveAccuracy": 100,
+                    "moveType": "normal",
+                    "moveName": "block"
+                },
+                {
+                    "maxPp": 10,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 10,
+                    "moveAccuracy": 100,
+                    "moveType": "normal",
+                    "moveName": "mimic"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "psychic",
+                    "moveName": "reflect"
+                },
+                {
+                    "maxPp": 15,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 15,
+                    "moveAccuracy": 100,
+                    "moveType": "psychic",
+                    "moveName": "psywave"
+                }
+            ],
+            "name": "lapras",
+            "baseStats": {
+                "maxHp": 130,
+                "specialDefense": 95,
+                "defense": 80,
+                "attack": 85,
+                "specialAttack": 85,
+                "speed": 60
+            }
+        },
+        {
+            "types": [
+                "dragon",
                 "flying"
             ],
-            "currentHP": 78,
-            "moves": [{
-                "moveClass": "physical",
-                "maxPp": 10,
-                "moveDescription": "A Pokemon move",
-                "currentPp": 10,
-                "moveAccuracy": 100,
-                "moveType": "dragon",
-                "moveName": "dragon-tail"
-            }],
-            "name": "charizard",
-            "baseStats": {
-                "maxHp": 78,
-                "specialDefense": 85,
-                "defense": 78,
-                "attack": 84,
-                "specialAttack": 109,
-                "speed": 100
-            }
-        },
-        {
-            "types": ["water"],
-            "currentHP": 79,
-            "moves": [{
-                "moveClass": "physical",
-                "maxPp": 10,
-                "moveDescription": "A Pokemon move",
-                "currentPp": 10,
-                "moveAccuracy": 100,
-                "moveType": "dragon",
-                "moveName": "dragon-tail"
-            }],
-            "name": "blastoise",
-            "baseStats": {
-                "maxHp": 79,
-                "specialDefense": 105,
-                "defense": 100,
-                "attack": 83,
-                "specialAttack": 85,
-                "speed": 78
-            }
-        },
-        {
-            "types": [
-                "grass",
-                "poison"
+            "currentHP": 91,
+            "moves": [
+                {
+                    "maxPp": 10,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 10,
+                    "moveAccuracy": 100,
+                    "moveType": "water",
+                    "moveName": "aqua-tail"
+                },
+                {
+                    "maxPp": 15,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 15,
+                    "moveAccuracy": 100,
+                    "moveType": "dragon",
+                    "moveName": "breaking-swipe"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "water",
+                    "moveName": "aqua-jet"
+                }
             ],
-            "currentHP": 80,
-            "moves": [{
-                "moveClass": "physical",
-                "maxPp": 10,
-                "moveDescription": "A Pokemon move",
-                "currentPp": 10,
-                "moveAccuracy": 100,
-                "moveType": "ground",
-                "moveName": "earth-power"
-            }],
-            "name": "venusaur",
+            "name": "dragonite",
             "baseStats": {
-                "maxHp": 80,
+                "maxHp": 91,
                 "specialDefense": 100,
-                "defense": 83,
-                "attack": 82,
+                "defense": 95,
+                "attack": 134,
                 "specialAttack": 100,
                 "speed": 80
             }
         },
         {
-            "types": [
-                "fighting",
-                "steel"
+            "types": ["psychic"],
+            "currentHP": 106,
+            "moves": [
+                {
+                    "maxPp": 15,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 15,
+                    "moveAccuracy": 100,
+                    "moveType": "dark",
+                    "moveName": "torment"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "normal",
+                    "moveName": "pay-day"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "psychic",
+                    "moveName": "psycho-cut"
+                },
+                {
+                    "maxPp": 20,
+                    "moveDescription": "A Pokemon move",
+                    "currentPp": 20,
+                    "moveAccuracy": 100,
+                    "moveType": "fighting",
+                    "moveName": "seismic-toss"
+                }
             ],
-            "currentHP": 70,
-            "moves": [{
-                "moveClass": "physical",
-                "maxPp": 10,
-                "moveDescription": "A Pokemon move",
-                "currentPp": 10,
-                "moveAccuracy": 100,
-                "moveType": "psychic",
-                "moveName": "heal-pulse"
-            }],
-            "name": "lucario",
+            "name": "mewtwo",
             "baseStats": {
-                "maxHp": 70,
-                "specialDefense": 70,
-                "defense": 70,
+                "maxHp": 106,
+                "specialDefense": 90,
+                "defense": 90,
                 "attack": 110,
-                "specialAttack": 115,
-                "speed": 90
-            }
-        },
-        {
-            "types": [
-                "ghost",
-                "poison"
-            ],
-            "currentHP": 60,
-            "moves": [{
-                "moveClass": "physical",
-                "maxPp": 15,
-                "moveDescription": "A Pokemon move",
-                "currentPp": 15,
-                "moveAccuracy": 100,
-                "moveType": "dark",
-                "moveName": "torment"
-            }],
-            "name": "gengar",
-            "baseStats": {
-                "maxHp": 60,
-                "specialDefense": 75,
-                "defense": 60,
-                "attack": 65,
-                "specialAttack": 130,
-                "speed": 110
+                "specialAttack": 154,
+                "speed": 130
             }
         }
     ]},
