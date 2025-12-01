@@ -6,6 +6,10 @@ import interface_adapter.battle.*;
 import use_case.use_move.*;
 import use_case.start_battle.*;
 import view.BattlePanel;
+import interface_adapter.end_battle.EndBattleController;
+import use_case.end_battle.EndBattleInputBoundary;
+import use_case.end_battle.EndBattleInputData;
+
 
 import javax.swing.*;
 
@@ -51,7 +55,28 @@ public class BattleDemo {
             frame.setSize(1000, 800);
             frame.setLocationRelativeTo(null);
 
-            BattlePanel battlePanel = new BattlePanel(battle, battleController, useMoveViewModel);
+            // Dummy End Battle interactor for the demo app
+            EndBattleInputBoundary demoEndBattleInteractor = new EndBattleInputBoundary() {
+                @Override
+                public void execute(EndBattleInputData inputData) {
+                    // In the full app (Main), this triggers Rematch/New Game.
+                    // In this demo, we just show a simple message.
+                    JOptionPane.showMessageDialog(
+                            frame,
+                            "End-of-battle options (Rematch / New Game) are only wired in Main.\n" +
+                                    "This BattleDemo is for testing moves only.",
+                            "Battle End (Demo)",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                }
+            };
+
+            EndBattleController demoEndBattleController = new EndBattleController(demoEndBattleInteractor);
+
+// Use the 4-arg BattlePanel constructor
+            BattlePanel battlePanel = new BattlePanel(battle, battleController, useMoveViewModel, demoEndBattleController);
+            frame.setContentPane(battlePanel);
+
             frame.setContentPane(battlePanel);
 
             frame.setVisible(true);

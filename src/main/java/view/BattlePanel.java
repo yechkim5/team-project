@@ -3,11 +3,13 @@ package view;
 import app.Main;
 import entity.*;
 import interface_adapter.battle.*;
+import interface_adapter.end_battle.EndBattleController;
 
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 
 /**
  * Full battle screen - NOW CONNECTED TO USE CASES!
@@ -24,6 +26,7 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
     private final Battle battle;
     private final BattleController controller;
     private final BattleViewModel viewModel;
+    private final EndBattleController endBattleController;
 
     private final BattleStatusPanel statusPanel;
     private final JTextArea battleLog = new JTextArea(10, 40);
@@ -32,11 +35,16 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
     private JPanel choicePanel;
     private AttackPanel attackPanel;
     private TeamSwitchPanel teamSwitchPanel;
+    private JPanel endPanel;
 
-    public BattlePanel(Battle battle, BattleController controller, BattleViewModel viewModel) {
+    private boolean battleOverHandled = false; //ensures battle doesn't repeat after ending
+
+    public BattlePanel(Battle battle, BattleController controller, BattleViewModel viewModel,
+                       EndBattleController endBattleController) {
         this.battle = battle;
         this.controller = controller;
         this.viewModel = viewModel;
+        this.endBattleController = endBattleController;
 
         // Listen to view model changes
         viewModel.addPropertyChangeListener(this);
@@ -109,9 +117,25 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
         Pokemon[] teamArray = battle.getCurrentTurnTeam().getTeam().toArray(new Pokemon[0]);
         teamSwitchPanel = new TeamSwitchPanel(teamArray, battle, this::showChoice, this::handleSwitch);
 
+        //END panel
+        endPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+
+        JButton rematchButton = new JButton("Rematch");
+        JButton newGameButton = new JButton("New Game");
+
+        rematchButton.setFont(rematchButton.getFont().deriveFont(16f));
+        newGameButton.setFont(newGameButton.getFont().deriveFont(16f));
+
+        rematchButton.addActionListener(e -> endBattleController.executeRematch(battle));
+        newGameButton.addActionListener(e -> endBattleController.executeNewGame());
+
+        endPanel.add(rematchButton);
+        endPanel.add(newGameButton);
+
         bottomCards.add(choicePanel,   "CHOICE");
         bottomCards.add(attackPanel,   "MOVES");
         bottomCards.add(teamSwitchPanel, "TEAM");
+        bottomCards.add(endPanel, "END");
     }
 
     // CardLayout helpers
@@ -147,6 +171,13 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
         repaint();
     }
 
+    private void showEndOptions(){
+        CardLayout cl = (CardLayout) bottomCards.getLayout();
+        cl.show(bottomCards, "END");
+        revalidate();
+        repaint();
+    }
+
     // Called when a Pokemon is switched
     private void handleSwitch() {
         refreshStatus();
@@ -162,7 +193,11 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
         Pokemon yourPokemon = battle.getTeam1().getActivePokemon();
         Pokemon enemyPokemon = battle.getTeam2().getActivePokemon();
         statusPanel.showStatus(yourPokemon, enemyPokemon);
-        showChoice(); // Return to main menu after move
+        if (viewModel.isBattleEnded()){
+            showEndOptions();
+        } else {
+            showChoice(); // Return to main menu after move
+        }
     }
 
     @Override
@@ -179,17 +214,18 @@ public class BattlePanel extends JPanel implements PropertyChangeListener {
             refreshStatus();
 
             // Check if battle ended
-            if (viewModel.isBattleEnded()) {
+            if (viewModel.isBattleEnded() && !battleOverHandled) {
+                battleOverHandled = true;
+
                 PokemonTeam winner = viewModel.getWinner();
                 String winnerName = winner == battle.getTeam1() ? "Player 1" : "Player 2";
 
-                JOptionPane.showMessageDialog(
-                        this,
-                        winnerName + " wins the battle!",
-                        "Battle Over",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
+                battleLog.append("\nBattle Over!" + winnerName + "wins!\n");
+                battleLog.setCaretPosition(battleLog.getDocument().getLength());
+
                 Main.battleMusic.stopMusic();
+
+                showEndOptions();
             }
         }
     }
