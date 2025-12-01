@@ -3,13 +3,13 @@ package use_case.game_state_persistance;
 import entity.*;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import use_case.game_state_persistence.OrgJsonGameStateSerializer;
+import use_case.game_state_persistence.SaveGameInteractor;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
-class OrgJsonGameStateSerializerTest {
+class SaveGameInteractorTest {
 
     @Test
     void testRoundTrip_EmptyTeams_NoBattlePhase() {
@@ -23,8 +23,8 @@ class OrgJsonGameStateSerializerTest {
                 0
         );
 
-        JSONObject json = OrgJsonGameStateSerializer.toJson(original);
-        GameState deserialized = OrgJsonGameStateSerializer.fromJson(json);
+        JSONObject json = SaveGameInteractor.toJson(original);
+        GameState deserialized = SaveGameInteractor.fromJson(json);
 
         assertGameStatesEqual(original, deserialized);
     }
@@ -43,8 +43,8 @@ class OrgJsonGameStateSerializerTest {
             }
             """;
 
-        GameState deserialized = OrgJsonGameStateSerializer.fromJson(new JSONObject(minimalJson));
-        JSONObject serializedAgain = OrgJsonGameStateSerializer.toJson(deserialized);
+        GameState deserialized = SaveGameInteractor.fromJson(new JSONObject(minimalJson));
+        JSONObject serializedAgain = SaveGameInteractor.toJson(deserialized);
 
         assertEquals(GameState.Screen.TEAM_SELECTION, deserialized.currentScreen());
         assertNull(deserialized.battlePhase());
@@ -69,8 +69,8 @@ class OrgJsonGameStateSerializerTest {
                 null, 1, 0
         );
 
-        JSONObject json = OrgJsonGameStateSerializer.toJson(state);
-        GameState deserialized = OrgJsonGameStateSerializer.fromJson(json);
+        JSONObject json = SaveGameInteractor.toJson(state);
+        GameState deserialized = SaveGameInteractor.fromJson(json);
 
         assertEquals(1, deserialized.player1Team().getTeam().size());
         assertEquals("Pikachu", deserialized.player1Team().getTeam().get(0).getName());
