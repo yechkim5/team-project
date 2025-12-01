@@ -16,7 +16,7 @@ import entity.*;
  * Factory that creates a real Pokemon from the PokeAPI.
  * Usage: new pokemonFactory("pikachu").getPokemon()
  */
-public class pokemonFactory {
+public class pokemonFactory implements Factory {
     private final String pokeid;
     private final pokemonFetcher pf;
     private final JSONObject oj;
