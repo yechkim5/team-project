@@ -55,6 +55,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
     private final JLabel titleLabel;
     private final JButton addToTeamButton;
     private final JButton finalizeTeamButton;
+    private final JButton generateRandomBattleButton;
     private final JScrollPane teamScroll;
 
     // Data storage (view layer only - for UI state)
@@ -118,6 +119,10 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         addToTeamButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         addToTeamButton.addActionListener(e -> addPokemonToTeam());
 
+        generateRandomBattleButton = new JButton("Generate Random Battle");
+        generateRandomBattleButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        generateRandomBattleButton.addActionListener(e -> {});
+
         finalizeTeamButton = new JButton("Finalize Team");
         finalizeTeamButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         finalizeTeamButton.setEnabled(false);
@@ -134,6 +139,8 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         bottomLeft.add(addToTeamButton);
         bottomLeft.add(Box.createVerticalStrut(5));
         bottomLeft.add(finalizeTeamButton);
+        bottomLeft.add(Box.createVerticalStrut(5));
+        bottomLeft.add(generateRandomBattleButton);
         bottomLeft.add(Box.createVerticalStrut(5));
         bottomLeft.add(removeMoveButton);
 
