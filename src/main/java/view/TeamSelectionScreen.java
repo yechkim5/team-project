@@ -438,7 +438,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
 
             try {
                 GameState state = app.GameOrchestrator.getCurrent();
-                String json = use_case.auto_save.OrgJsonGameStateSerializer.toJson(state).toString(4);
+                String json = use_case.game_state_persistence.OrgJsonGameStateSerializer.toJson(state).toString(4);
                 Files.createDirectories(Paths.get("resources"));
                 Files.writeString(Paths.get(path), json);
 
@@ -465,7 +465,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
             try {
                 String content = Files.readString(Paths.get(file.getAbsolutePath()));
                 org.json.JSONObject json = new org.json.JSONObject(content);
-                GameState loaded = use_case.auto_save.OrgJsonGameStateSerializer.fromJson(json);
+                GameState loaded = use_case.game_state_persistence.OrgJsonGameStateSerializer.fromJson(json);
 
                 if (loaded != null) {
                     app.GameOrchestrator.updateState(loaded);

@@ -1,0 +1,8 @@
+{
+    "player2Team": {"pokemons": []},
+    "highScore": 0,
+    "currentScreen": "TEAM_SELECTION",
+    "player1Team": {"pokemons": []},
+    "activeTeamSelector": "PLAYER1",
+    "currentTowerLevel": 1
+}
