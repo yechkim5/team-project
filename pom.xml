@@ -49,6 +49,12 @@
                 <scope>test</scope>
             </dependency>
 
-        </dependencies>
+        <dependency>
+            <groupId>com.googlecode.soundlibs</groupId>
+            <artifactId>jlayer</artifactId>
+            <version>1.0.1.4</version>
+        </dependency>
+
+    </dependencies>
 
 </project>
