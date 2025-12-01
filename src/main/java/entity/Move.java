@@ -73,6 +73,8 @@ public class Move {
         return moveClass;
     }
 
+    public void resetPp() {this.currentPp = maxPp;}
+
     public Move(String moveName, String moveType, int maxPp, String moveDescription, String moveClass, int moveAccuracy, int currentPp) {
         this.moveName = moveName;
         this.moveType = moveType;
