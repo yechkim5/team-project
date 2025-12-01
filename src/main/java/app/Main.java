@@ -3,6 +3,13 @@ package app;
 import entity.Battle;
 import entity.GameState;
 import entity.PokemonTeam;
+import entity.Pokemon;
+import entity.Move;
+import interface_adapter.end_battle.EndBattleController;
+import interface_adapter.end_battle.EndBattlePresenter;
+import interface_adapter.navigator.BattleEndNavigator;
+import use_case.end_battle.EndBattleInputData;
+import use_case.end_battle.EndBattleInteractor;
 import use_case.select_team.*;
 import use_case.start_battle.*;
 import use_case.use_move.*;
@@ -137,18 +144,39 @@ public class Main {
             frame.setVisible(true);
         });
     }
+    //Helper Methods for Rematch Use Case
+
+    private static void resetTeamsForRematch(Battle previousBattle){
+        resetTeam(previousBattle.getTeam1());
+        resetTeam(previousBattle.getTeam2());
+    }
+
+    private static void resetTeam(PokemonTeam team){
+        for (Pokemon p: team.getTeam()) {
+            p.setCurrentHP(p.getBaseStats().getMaxHp());
+
+            Move[] moves = p.getMoves();
+            if(moves != null){
+                for (Move m: moves) {
+                    if (m != null) {
+                        m.resetPp();
+                    }
+                }
+            }
+        }
+    }
 
     private static void startBattle(JFrame frame, PokemonTeam team1, PokemonTeam team2) {
         // === CRITICAL: Debug logging to verify teams are different ===
         System.out.println("\n=== STARTING BATTLE ===");
         System.out.println("Team 1 Pokemon:");
         for (int i = 0; i < team1.getTeam().size(); i++) {
-            System.out.println("  " + (i+1) + ". " + team1.getTeam().get(i).getName());
+            System.out.println("  " + (i + 1) + ". " + team1.getTeam().get(i).getName());
         }
 
         System.out.println("Team 2 Pokemon:");
         for (int i = 0; i < team2.getTeam().size(); i++) {
-            System.out.println("  " + (i+1) + ". " + team2.getTeam().get(i).getName());
+            System.out.println("  " + (i + 1) + ". " + team2.getTeam().get(i).getName());
         }
 
         // Verify teams are different objects
@@ -178,8 +206,119 @@ public class Main {
         UseMoveInputBoundary useMoveInteractor = new UseMoveInteractor(useMovePresenter);
         BattleController battleController = new BattleController(useMoveInteractor);
 
+        // === NEW: BattleEndNavigator for Rematch / New Game ===
+        BattleEndNavigator navigator = new BattleEndNavigator() {
+            @Override
+            public void onRematch(Battle previousBattle) {
+                // stop old music if needed, then restart
+                if (battleMusic != null) {
+                    battleMusic.stopMusic();
+                }
+                battleMusic = new Mp3MusicPlayer("src/main/java/Music/BattleMusic.mp3");
+                battleMusic.playMusic();
+
+                resetTeamsForRematch(previousBattle);
+
+                PokemonTeam rematchTeam1 = previousBattle.getTeam1();
+                PokemonTeam rematchTeam2 = previousBattle.getTeam2();
+                startBattle(frame, rematchTeam1, rematchTeam2);
+            }
+
+            @Override
+            public void onNewGame() {
+                // Stop current music
+                if (battleMusic != null) {
+                    battleMusic.stopMusic();
+                }
+
+                // Reset game state
+                GameOrchestrator.forceNewGame();
+                GameState newState = GameOrchestrator.getCurrent();
+
+                frame.setSize(1200, 700);
+
+                // Rebuild team selection screen (similar to main())
+                SelectTeamViewModel viewModel = new SelectTeamViewModel();
+                SelectTeamOutputBoundary presenter = new SelectTeamPresenter(viewModel);
+                SelectTeamInteractor interactor = new SelectTeamInteractor(presenter);
+
+                // Restore saved teams (if any)
+                interactor.restoreTeam(1, newState.player1Team());
+                interactor.restoreTeam(2, newState.player2Team());
+
+                SelectTeamController controller = new SelectTeamController(interactor);
+                TeamSelectionScreen teamScreen = new TeamSelectionScreen(controller, viewModel);
+
+                // Restore whose turn it is
+                int currentPlayerNum = (newState.activeTeamSelector() == GameState.Player.PLAYER1) ? 1 : 2;
+                viewModel.setPlayerNumber(currentPlayerNum);
+                interactor.getCurrentTeam(currentPlayerNum);
+
+                // Prevent multiple battle starts
+                final boolean[] battleStarted = {false};
+
+                viewModel.addPropertyChangeListener(new PropertyChangeListener() {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        // Only check on team property changes
+                        if (!evt.getPropertyName().equals(SelectTeamViewModel.TEAM_PROPERTY)) {
+                            return;
+                        }
+
+                        // Prevent multiple battle starts
+                        if (battleStarted[0]) {
+                            return;
+                        }
+
+                        // Get teams from the INTERACTOR (source of truth)
+                        PokemonTeam team1 = interactor.getTeam(1);
+                        PokemonTeam team2 = interactor.getTeam(2);
+
+                        // Debug logging - REMOVE AFTER TESTING
+                        System.out.println("=== TEAM CHECK (New Game) ===");
+                        System.out.println("Team 1 size: " + team1.getTeam().size());
+                        System.out.println("Team 2 size: " + team2.getTeam().size());
+
+                        // Check if both teams are ready (6 Pokemon each)
+                        if (team1.getTeam().size() == 6 && team2.getTeam().size() == 6) {
+                            battleStarted[0] = true; // Set flag to prevent re-triggering
+
+                            SwingUtilities.invokeLater(() -> {
+                                int confirm = JOptionPane.showConfirmDialog(
+                                        frame,
+                                        "Both teams are ready! Start the battle?",
+                                        "Ready for Battle",
+                                        JOptionPane.YES_NO_OPTION
+                                );
+
+                                if (confirm == JOptionPane.YES_OPTION) {
+                                    // start music
+                                    battleMusic = new Mp3MusicPlayer("src/main/java/Music/BattleMusic.mp3");
+                                    battleMusic.playMusic();
+                                    // Pass teams from interactor (source of truth)
+                                    startBattle(frame, team1, team2);
+
+                                } else {
+                                    battleStarted[0] = false; // Reset if user declines
+                                }
+                            });
+                        }
+                    }
+                });
+
+                frame.setContentPane(teamScreen);
+                frame.revalidate();
+                frame.repaint();
+            }
+        };
+
+        // === End Battle Use Case wired to navigator ===
+        EndBattlePresenter endPresenter = new EndBattlePresenter(useMoveViewModel, navigator);
+        EndBattleInteractor endInteractor = new EndBattleInteractor(endPresenter);
+        EndBattleController endController = new EndBattleController(endInteractor);
+
         // === CREATE BATTLE VIEW ===
-        BattlePanel battlePanel = new BattlePanel(battle, battleController, useMoveViewModel);
+        BattlePanel battlePanel = new BattlePanel(battle, battleController, useMoveViewModel, endController);
 
         // Switch to battle screen
         frame.setContentPane(battlePanel);
@@ -187,6 +326,7 @@ public class Main {
         frame.revalidate();
         frame.repaint();
     }
+
 
     private static class StartBattlePresenter implements StartBattleOutputBoundary {
         private final BattleViewModel viewModel;
