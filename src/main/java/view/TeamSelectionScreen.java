@@ -8,6 +8,7 @@ import factory.pokemonFactory;
 import interface_adapter.select_team.SelectTeamController;
 import interface_adapter.select_team.SelectTeamViewModel;
 
+import use_case.game_state_persistence.SaveGameInteractor;
 import use_case.select_team.SelectTeamOutputBoundary;
 import interface_adapter.select_team.SelectTeamPresenter;
 import use_case.select_team.SelectTeamInteractor;
@@ -438,7 +439,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
 
             try {
                 GameState state = app.GameOrchestrator.getCurrent();
-                String json = use_case.game_state_persistence.OrgJsonGameStateSerializer.toJson(state).toString(4);
+                String json = SaveGameInteractor.toJson(state).toString(4);
                 Files.createDirectories(Paths.get("resources"));
                 Files.writeString(Paths.get(path), json);
 
@@ -465,7 +466,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
             try {
                 String content = Files.readString(Paths.get(file.getAbsolutePath()));
                 org.json.JSONObject json = new org.json.JSONObject(content);
-                GameState loaded = use_case.game_state_persistence.OrgJsonGameStateSerializer.fromJson(json);
+                GameState loaded = SaveGameInteractor.fromJson(json);
 
                 if (loaded != null) {
                     app.GameOrchestrator.updateState(loaded);

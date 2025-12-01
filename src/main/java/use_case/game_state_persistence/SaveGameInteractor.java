@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrgJsonGameStateSerializer {
+public class SaveGameInteractor {
 
     public static JSONObject toJson(GameState state) {
         JSONObject json = new JSONObject();
