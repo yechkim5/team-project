@@ -21,7 +21,6 @@ public interface SelectTeamInputBoundary {
      * Get the current team for the specified player
      *
      * @param playerNumber The player number (1 or 2)
-     * @return The current team
      */
     void getCurrentTeam(int playerNumber);
     
