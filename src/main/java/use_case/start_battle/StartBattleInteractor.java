@@ -134,4 +134,9 @@ public class StartBattleInteractor implements StartBattleInputBoundary {
         // No alive Pokémon found
         return false;
     }
+    // Package‑private helper, intended only for tests
+    boolean isValidTeamForTest(PokemonTeam team) {
+        return isValidTeam(team);
+    }
+
 }
