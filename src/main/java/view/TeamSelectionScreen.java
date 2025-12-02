@@ -361,16 +361,22 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
             updateTeamDisplay(viewModel.getTeam());
         } else if (evt.getPropertyName().equals(SelectTeamViewModel.MESSAGE_PROPERTY)) {
             String message = viewModel.getMessage();
-            // Only show popup if message is not null, not empty, and different from last shown
-            if (message != null && !message.isEmpty() && !message.equals(lastShownMessage)) {
+
+            // Skip showing popup for Player 2 finalization messages (handled in Main.java now)
+            boolean isPlayer2Finalization = viewModel.isTeamFinalized() &&
+                    viewModel.getPlayerNumber() == 2 &&
+                    (message.contains("finalized") || message.contains("complete"));
+
+            // Only show popup if message is not null, not empty, different from last shown, and not a Player 2 finalization message
+            if (message != null && !message.isEmpty() && !message.equals(lastShownMessage) && !isPlayer2Finalization) {
                 lastShownMessage = message; // Track this message
-                
+
                 if (viewModel.isSuccess()) {
                     JOptionPane.showMessageDialog(
-                        this,
-                        message,
-                        "Success",
-                        JOptionPane.INFORMATION_MESSAGE
+                            this,
+                            message,
+                            "Success",
+                            JOptionPane.INFORMATION_MESSAGE
                     );
                     
                     // Clear selection after successful add
