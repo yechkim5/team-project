@@ -1,6 +1,7 @@
+
 package app;
 
-import data_access.JsonGameRepository;
+import dataaccess.JsonGameRepository;
 import entity.GameState;
 import entity.PokemonTeam;
 
@@ -12,13 +13,17 @@ public class GameOrchestrator {
 
     private static GameState current;
 
+    /**
+     * Initializes the game state by loading from save or starting fresh.
+     */
     public static void init() {
-        GameState saved = JsonGameRepository.load();
+        final GameState saved = JsonGameRepository.load();
         System.out.println(saved);
         if (saved != null) {
             current = saved;
             System.out.println("[Auto-Load] Resumed from tower level " + saved.currentTowerLevel());
-        } else {
+        }
+        else {
             current = new GameState(
                     GameState.Screen.TEAM_SELECTION,
                     GameState.Player.PLAYER1,
@@ -33,16 +38,20 @@ public class GameOrchestrator {
 
     }
 
+    /**
+     * Forces a completely new game by deleting the save file and resetting state.
+     */
     public static void forceNewGame() {
         // Delete autosave file and start completely fresh
         try {
             java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get("resources/autosave.json"));
-            System.out.println("[New Game] Old save deleted — starting fresh!");
-        } catch (Exception e) {
-            // Ignore if file doesn't exist
+            System.out.println("[New Game] Old save deleted - starting fresh!");
+        }
+        catch (java.io.IOException exception) {
+            System.out.println("file doesn't exist");
         }
 
-        // Create brand new empty state
+        // Create brand-new empty state
         current = new GameState(
                 GameState.Screen.TEAM_SELECTION,
                 GameState.Player.PLAYER1,
@@ -54,6 +63,11 @@ public class GameOrchestrator {
         );
     }
 
+    /**
+     * Updates the current game state and automatically saves it.
+     *
+     * @param newState the new game state to set
+     */
     public static void updateState(GameState newState) {
         current = newState;
         autoSave();

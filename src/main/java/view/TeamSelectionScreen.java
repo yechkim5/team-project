@@ -1,22 +1,23 @@
+
 package view;
 
 import entity.GameState;
-import entity.Pokemon;
 import entity.Move;
+import entity.Pokemon;
 import entity.PokemonTeam;
 import factory.pokemonFactory;
 import interface_adapter.select_team.SelectTeamController;
-import interface_adapter.select_team.SelectTeamViewModel;
-
-import use_case.game_state_persistence.SaveGameInteractor;
-import use_case.select_team.SelectTeamOutputBoundary;
 import interface_adapter.select_team.SelectTeamPresenter;
+import interface_adapter.select_team.SelectTeamViewModel;
+import use_case.game_state_persistence.SaveGameInteractor;
 import use_case.select_team.SelectTeamInteractor;
+import use_case.select_team.SelectTeamOutputBoundary;
 
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,15 +25,15 @@ import java.util.Map;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import javax.swing.filechooser.*; //file selector window(should handle both loading and saving)
+import javax.swing.filechooser.*;
 
 public class TeamSelectionScreen extends JPanel implements PropertyChangeListener {
     // List of 20 pokemon names (using names as IDs)
     private static final String[] POKEMON_NAMES = {
-        "pikachu", "charizard", "blastoise", "venusaur", "lucario",
-        "gengar", "dragonite", "tyranitar", "metagross", "garchomp",
-        "salamence", "gardevoir", "machamp", "alakazam", "gyarados",
-        "snorlax", "arcanine", "lapras", "aerodactyl", "mewtwo"
+            "pikachu", "charizard", "blastoise", "venusaur", "lucario",
+            "gengar", "dragonite", "tyranitar", "metagross", "garchomp",
+            "salamence", "gardevoir", "machamp", "alakazam", "gyarados",
+            "snorlax", "arcanine", "lapras", "aerodactyl", "mewtwo"
     };
     private static String[] pokemonNames;
 
@@ -219,12 +220,13 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
                     }
                 }
                 pokemonMovesCache.put(pokemonName, moveList);
-            } catch (Exception e) {
+            }
+            catch (Exception exception) {
                 JOptionPane.showMessageDialog(
-                    this,
-                    "Error loading Pokemon: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
+                        this,
+                        "Error loading Pokemon: " + exception.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
                 );
                 return;
             }
@@ -249,17 +251,17 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
 
         if (currentlySelectedMoves.size() >= 4) {
             JOptionPane.showMessageDialog(
-                this,
-                "You can't select more than 4 Moves!",
-                "Move Limit",
-                JOptionPane.WARNING_MESSAGE
+                    this,
+                    "You can't select more than 4 Moves!",
+                    "Move Limit",
+                    JOptionPane.WARNING_MESSAGE
             );
             return;
         }
 
         // Extract move name from display string
         String moveName = moveDisplay.substring(0, moveDisplay.indexOf(" (PP"));
-        
+
         // Find the move in the pokemon's moves
         List<Move> availableMoves = pokemonMovesCache.get(currentlySelectedPokemonName);
         Move selectedMove = null;
@@ -287,20 +289,20 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
     private void addPokemonToTeam() {
         if (currentlySelectedPokemon == null) {
             JOptionPane.showMessageDialog(
-                this,
-                "Please select a Pokemon first!",
-                "No Pokemon Selected",
-                JOptionPane.WARNING_MESSAGE
+                    this,
+                    "Please select a Pokemon first!",
+                    "No Pokemon Selected",
+                    JOptionPane.WARNING_MESSAGE
             );
             return;
         }
 
         if (currentlySelectedMoves.isEmpty()) {
             JOptionPane.showMessageDialog(
-                this,
-                "Please select at least one move for this Pokemon!",
-                "No Moves Selected",
-                JOptionPane.WARNING_MESSAGE
+                    this,
+                    "Please select at least one move for this Pokemon!",
+                    "No Moves Selected",
+                    JOptionPane.WARNING_MESSAGE
             );
             return;
         }
@@ -326,7 +328,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
                 String teamEntry = (i + 1) + ". " + p.getName() + " (" + moveCount + " moves)";
                 teamModel.addElement(teamEntry);
             }
-            
+
             // Enable finalize button if team has 6 pokemon
             finalizeTeamButton.setEnabled(pokemonList.size() == MAX_TEAM_SIZE);
         }
@@ -335,7 +337,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
     private void switchToNextPlayer(int nextPlayerNumber) {
         currentPlayerNumber = nextPlayerNumber;
         titleLabel.setText("Player " + currentPlayerNumber + " - Select your Pokemon (Max " + MAX_TEAM_SIZE + ")");
-        
+
         // Clear UI for next player
         currentlySelectedPokemon = null;
         currentlySelectedPokemonName = null;
@@ -345,10 +347,10 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         teamModel.clear();
         detailPanel.showPokemon((Pokemon) null);
         finalizeTeamButton.setEnabled(false);
-        
+
         // Reset message tracking
         lastShownMessage = "";
-        
+
         // Get the new player's team
         controller.getCurrentTeam(currentPlayerNumber);
     }
@@ -359,7 +361,8 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(SelectTeamViewModel.TEAM_PROPERTY)) {
             updateTeamDisplay(viewModel.getTeam());
-        } else if (evt.getPropertyName().equals(SelectTeamViewModel.MESSAGE_PROPERTY)) {
+        }
+        else if (evt.getPropertyName().equals(SelectTeamViewModel.MESSAGE_PROPERTY)) {
             String message = viewModel.getMessage();
 
             // Skip showing popup for Player 2 finalization messages (handled in Main.java now)
@@ -378,7 +381,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
                             "Success",
                             JOptionPane.INFORMATION_MESSAGE
                     );
-                    
+
                     // Clear selection after successful add
                     if (viewModel.getAddedPokemon() != null) {
                         currentlySelectedPokemon = null;
@@ -388,24 +391,25 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
                         moveListModel.clear();
                         detailPanel.showPokemon((Pokemon) null);
                     }
-                } else {
+                }
+                else {
                     JOptionPane.showMessageDialog(
-                        this,
-                        message,
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE
+                            this,
+                            message,
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
                     );
                 }
             }
-            
+
             // Check if ready for next player (only check once, not on every message change)
-            if (viewModel.isReadyForNextPlayer() && viewModel.getPlayerNumber() == 1 && 
-                viewModel.isTeamFinalized()) {
+            if (viewModel.isReadyForNextPlayer() && viewModel.getPlayerNumber() == 1 &&
+                    viewModel.isTeamFinalized()) {
                 int response = JOptionPane.showConfirmDialog(
-                    this,
-                    "Player 1's team is complete! Ready for Player 2?",
-                    "Team Complete",
-                    JOptionPane.YES_NO_OPTION
+                        this,
+                        "Player 1's team is complete! Ready for Player 2?",
+                        "Team Complete",
+                        JOptionPane.YES_NO_OPTION
                 );
                 if (response == JOptionPane.YES_OPTION) {
                     switchToNextPlayer(2);
@@ -422,37 +426,38 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
     // ==================== MANUAL SAVE / LOAD ====================
 
     private void saveGame() {
-        JFileChooser chooser = new JFileChooser();
+        final JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(new File("resources"));
         chooser.setDialogTitle("Save Your Pokémon Team");
         chooser.setFileFilter(new FileNameExtensionFilter("Pokémon Save File (*.json)", "json"));
         chooser.setSelectedFile(new File("My Team Save.json"));
 
-        int result = chooser.showSaveDialog(this);
+        final int result = chooser.showSaveDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
-            File file = chooser.getSelectedFile();
+            final File file = chooser.getSelectedFile();
             String path = file.getAbsolutePath();
             if (!path.toLowerCase().endsWith(".json")) {
                 path += ".json";
             }
 
             if (new File(path).exists()) {
-                int confirm = JOptionPane.showConfirmDialog(this,
+                final int confirm = JOptionPane.showConfirmDialog(this,
                         "File already exists! Overwrite?", "Confirm",
                         JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
                 if (confirm != JOptionPane.YES_OPTION) return;
             }
 
             try {
-                GameState state = app.GameOrchestrator.getCurrent();
-                String json = SaveGameInteractor.toJson(state).toString(4);
+                final GameState state = app.GameOrchestrator.getCurrent();
+                final String json = SaveGameInteractor.toJson(state).toString(4);
                 Files.createDirectories(Paths.get("resources"));
                 Files.writeString(Paths.get(path), json);
 
                 JOptionPane.showMessageDialog(this,
                         "Saved successfully!\n" + new File(path).getName(),
                         "Save Complete", JOptionPane.INFORMATION_MESSAGE);
-            } catch (Exception ex) {
+            }
+            catch (IOException ex) {
                 JOptionPane.showMessageDialog(this,
                         "Save failed: " + ex.getMessage(),
                         "Error", JOptionPane.ERROR_MESSAGE);
@@ -461,18 +466,18 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
     }
 
     private void loadGame() {
-        JFileChooser chooser = new JFileChooser();
+        final JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(new File("resources"));
         chooser.setDialogTitle("Load a Saved Game");
         chooser.setFileFilter(new FileNameExtensionFilter("Pokémon Save File (*.json)", "json"));
 
-        int result = chooser.showOpenDialog(this);
+        final int result = chooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
-            File file = chooser.getSelectedFile();
+            final File file = chooser.getSelectedFile();
             try {
-                String content = Files.readString(Paths.get(file.getAbsolutePath()));
-                org.json.JSONObject json = new org.json.JSONObject(content);
-                GameState loaded = SaveGameInteractor.fromJson(json);
+                final String content = Files.readString(Paths.get(file.getAbsolutePath()));
+                final org.json.JSONObject json = new org.json.JSONObject(content);
+                final GameState loaded = SaveGameInteractor.fromJson(json);
 
                 if (loaded != null) {
                     app.GameOrchestrator.updateState(loaded);
@@ -482,7 +487,8 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
                             "Loaded: " + file.getName() + "\nYour team is ready!",
                             "Load Complete", JOptionPane.INFORMATION_MESSAGE);
                 }
-            } catch (Exception ex) {
+            }
+            catch (IOException ex) {
                 JOptionPane.showMessageDialog(this,
                         "Load failed: " + ex.getMessage(),
                         "Error", JOptionPane.ERROR_MESSAGE);
@@ -491,29 +497,29 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
     }
 
     private void reloadTeamSelectionScreen() {
-        GameState state = app.GameOrchestrator.getCurrent();
-        int playerNum = (state.activeTeamSelector() == GameState.Player.PLAYER1) ? 1 : 2;
+        final GameState state = app.GameOrchestrator.getCurrent();
+        final int playerNum = (state.activeTeamSelector() == GameState.Player.PLAYER1) ? 1 : 2;
 
-        SelectTeamViewModel viewModel = new SelectTeamViewModel();
-        SelectTeamOutputBoundary presenter = new SelectTeamPresenter(viewModel);
-        SelectTeamInteractor interactor = new SelectTeamInteractor(presenter);
+        final SelectTeamViewModel viewModel = new SelectTeamViewModel();
+        final SelectTeamOutputBoundary presenter = new SelectTeamPresenter(viewModel);
+        final SelectTeamInteractor interactor = new SelectTeamInteractor(presenter);
 
         interactor.restoreTeam(1, state.player1Team());
         interactor.restoreTeam(2, state.player2Team());
 
-        SelectTeamController controller = new SelectTeamController(interactor);
+        final SelectTeamController controller = new SelectTeamController(interactor);
         viewModel.setPlayerNumber(playerNum);
         interactor.getCurrentTeam(playerNum);
 
-        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        final JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
         if (frame != null) {
             frame.getContentPane().removeAll();
 
-            TeamSelectionScreen newScreen = new TeamSelectionScreen(controller, viewModel);
+            final TeamSelectionScreen newScreen = new TeamSelectionScreen(controller, viewModel);
 
-            PokemonTeam currentTeam = playerNum == 1 ? state.player1Team() : state.player2Team();
+            final PokemonTeam currentTeam = playerNum == 1 ? state.player1Team() : state.player2Team();
             newScreen.updateTeamDisplay(currentTeam);
-            newScreen.finalizeTeamButton.setEnabled(currentTeam.getTeam().size() == 6);
+            newScreen.finalizeTeamButton.setEnabled(currentTeam.getTeam().size() == MAX_TEAM_SIZE);
 
             frame.setContentPane(newScreen);
             frame.revalidate();

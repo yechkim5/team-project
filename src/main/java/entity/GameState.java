@@ -1,3 +1,4 @@
+
 package entity;
 
 /**
@@ -5,10 +6,21 @@ package entity;
  * Every time anything changes (pick Pokémon, attack, switch, etc.),
  * we create a NEW GameState and auto-save it to JSON.
  *
+ * <p>
  * Why a record?
- * → 100% immutable (no bugs from accidental changes)
- * → Super clean and modern Java
- * → Perfect for saving/loading
+ * <ul>
+ *   <li>100% immutable (no bugs from accidental changes)</li>
+ *   <li>Super clean and modern Java</li>
+ *   <li>Perfect for saving/loading</li>
+ * </ul>
+ *
+ * @param currentScreen        the current screen being displayed
+ * @param activeTeamSelector   whose turn it is to pick during team selection
+ * @param player1Team          Player 1's complete Pokémon team
+ * @param player2Team          Player 2's complete Pokémon team (PvP only)
+ * @param battlePhase          current battle details, or {@code null} if not in battle
+ * @param currentTowerLevel    the tower level the player has reached
+ * @param highScore            the highest tower level ever reached
  */
 public record GameState(
         // What screen are we on?
@@ -33,29 +45,37 @@ public record GameState(
         int highScore
 ) {
 
-    /** The three main screens in the game */
+    /** The three main screens in the game. */
     public enum Screen {
-        TEAM_SELECTION,  // Players are building their teams
-        BATTLE,          // PvP battle is active
-        GAME_OVER        // One player won or game ended
+        TEAM_SELECTION,
+        BATTLE,
+        GAME_OVER
     }
 
-    /** The two human players — this is PvP only */
+    /** The two human players — this is PvP only. */
     public enum Player {
         PLAYER1,
         PLAYER2
     }
 
-    /** Whose turn it is during battle */
+    /** Whose turn it is during battle. */
     public enum Turn {
         PLAYER1,
         PLAYER2
     }
 
-    /** All info needed while a battle is running */
+    /**
+     * All info needed while a battle is running.
+     *
+     * @param currentTurn           whose turn it is to act
+     * @param player1ActiveIndex    index of the currently active Pokémon for player 1
+     * @param player2ActiveIndex    index of the currently active Pokémon for player 2
+     */
     public record BattlePhase(
-            Turn currentTurn,           // Who moves now
-            int player1ActiveIndex,     // Active Pokémon index for Player 1 (0–4)
-            int player2ActiveIndex      // Active Pokémon index for Player 2 (0–4)
-    ) {}
+            Turn currentTurn,
+            int player1ActiveIndex,
+            int player2ActiveIndex
+    ) {
+
+    }
 }
