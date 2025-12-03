@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Objects;
 
 public class moveBehaviourFactory {
-    public List<MoveBehaviour> getMoveBehaviours(String move_category,
-                                                 String move_damage_class) {
+    public List<MoveBehaviour> getMoveBehaviours(String moveCategory,
+                                                 String moveDamageClass) {
         List<MoveBehaviour> moveBehaviours = new ArrayList<>();
 
-        switch (move_category) {
+        switch (moveCategory) {
             case "damage":
-                moveBehaviours.add(getDamageClassBehaviour(move_damage_class));
+                moveBehaviours.add(getDamageClassBehaviour(moveDamageClass));
                 break;
             case "ailment":
                 throw new IllegalArgumentException("This damage category has not been implemented");
@@ -22,19 +22,19 @@ public class moveBehaviourFactory {
             case "heal":
                 throw new IllegalArgumentException("This damage category has not been implemented");
             case "damage+ailment":
-                moveBehaviours.add(getDamageClassBehaviour(move_damage_class));
+                moveBehaviours.add(getDamageClassBehaviour(moveDamageClass));
                 throw new IllegalArgumentException("This damage category has not been implemented");
             case "swagger":
-                moveBehaviours.add(getDamageClassBehaviour(move_damage_class));
+                moveBehaviours.add(getDamageClassBehaviour(moveDamageClass));
                 throw new IllegalArgumentException("This damage category has not been implemented");
             case "damage+lower":
-                moveBehaviours.add(getDamageClassBehaviour(move_damage_class));
+                moveBehaviours.add(getDamageClassBehaviour(moveDamageClass));
                 throw new IllegalArgumentException("This damage category has not been implemented");
             case "damage+raise":
-                moveBehaviours.add(getDamageClassBehaviour(move_damage_class));
+                moveBehaviours.add(getDamageClassBehaviour(moveDamageClass));
                 throw new IllegalArgumentException("This damage category has not been implemented");
             case "damage+heal":
-                moveBehaviours.add(getDamageClassBehaviour(move_damage_class));
+                moveBehaviours.add(getDamageClassBehaviour(moveDamageClass));
                 throw new IllegalArgumentException("This damage category has not been implemented");
             case "ohko":
                 moveBehaviours.add(new OneHitKnockOutBehaviour());
@@ -52,12 +52,14 @@ public class moveBehaviourFactory {
         return moveBehaviours;
     }
 
-    private DamageBehaviour getDamageClassBehaviour(String move_damage_class) {
-        if (Objects.equals(move_damage_class, "physical"))
+    private DamageBehaviour getDamageClassBehaviour(String moveDamageClass) {
+        if (Objects.equals(moveDamageClass, "physical")) {
             return new PhysicalDamageBehaviour();
-        else if(Objects.equals(move_damage_class, "special"))
+        } else if (Objects.equals(moveDamageClass, "special")) {
             return new SpecialDamageBehaviour();
-        else throw new IllegalArgumentException("Move Category not available");
+        } else {
+            throw new IllegalArgumentException("Move Category not available");
+        }
     }
 
 }

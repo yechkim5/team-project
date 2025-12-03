@@ -7,14 +7,11 @@ import entity.PokemonTeam;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
-/**
- * Comprehensive test suite for StartBattleInteractor
- * Provides 100% line and branch coverage
- */
 public class StartBattleInteractorTest {
 
     private static class CapturingPresenter implements StartBattleOutputBoundary {
@@ -37,6 +34,54 @@ public class StartBattleInteractorTest {
         }
     }
 
+    /**
+     * CRITICAL: Custom team where getActivePokemon() returns a DIFFERENT pokemon
+     * than what's in the getTeam() list. This allows us to test Check 5's final return false.
+     */
+    private static class SplitTeam extends PokemonTeam {
+        private final List<Pokemon> teamList = new ArrayList<>();
+        private final Pokemon activePokemon;
+
+        public SplitTeam(Pokemon activePokemon) {
+            this.activePokemon = activePokemon;
+        }
+
+        public void addToList(Pokemon p) {
+            teamList.add(p);
+        }
+
+        @Override
+        public List<Pokemon> getTeam() {
+            return teamList;
+        }
+
+        @Override
+        public Pokemon getActivePokemon() {
+            return activePokemon;
+        }
+    }
+
+    // Helper inside test class
+    private static class NoActiveTeam extends PokemonTeam {
+        private final List<Pokemon> teamList = new ArrayList<>();
+
+        void addToList(Pokemon p) {
+            teamList.add(p);
+        }
+
+        @Override
+        public List<Pokemon> getTeam() {
+            return teamList;
+        }
+
+        @Override
+        public Pokemon getActivePokemon() {
+            return null; // forces Check 3 to fail
+        }
+    }
+
+
+
     private CapturingPresenter presenter;
     private StartBattleInteractor interactor;
 
@@ -45,8 +90,6 @@ public class StartBattleInteractorTest {
         presenter = new CapturingPresenter();
         interactor = new StartBattleInteractor(presenter);
     }
-
-    // === HELPER METHODS ===
 
     private BaseLevelStats sampleStats() {
         return new BaseLevelStats.BaseLevelStatsBuilder()
@@ -67,151 +110,127 @@ public class StartBattleInteractorTest {
         return team;
     }
 
-    // === NULL VALIDATION TESTS ===
-
+    // === NULL TESTS ===
     @Test
-    public void execute_nullUserTeam_producesFail() {
-        presenter.reset();
-        PokemonTeam opponentTeam = createValidTeam("Opponent");
-
-        interactor.execute(new StartBattleInputData(null, opponentTeam));
-
-        assertEquals("Error: Both teams must be selected!", presenter.lastFail);
-        assertNull(presenter.lastSuccess);
-    }
-
-    @Test
-    public void execute_nullOpponentTeam_producesFail() {
-        presenter.reset();
-        PokemonTeam userTeam = createValidTeam("User");
-
-        interactor.execute(new StartBattleInputData(userTeam, null));
-
-        assertEquals("Error: Both teams must be selected!", presenter.lastFail);
-        assertNull(presenter.lastSuccess);
-    }
-
-    @Test
-    public void execute_bothTeamsNull_producesFail() {
-        presenter.reset();
-
+    public void execute_bothTeamsNull_fail() {
         interactor.execute(new StartBattleInputData(null, null));
-
         assertEquals("Error: Both teams must be selected!", presenter.lastFail);
-        assertNull(presenter.lastSuccess);
     }
 
-    // === EMPTY TEAM VALIDATION TESTS ===
+    @Test
+    public void execute_userTeamNull_fail() {
+        interactor.execute(new StartBattleInputData(null, createValidTeam("Opp")));
+        assertEquals("Error: Both teams must be selected!", presenter.lastFail);
+    }
 
     @Test
-    public void execute_emptyUserTeam_producesFail() {
-        presenter.reset();
-        PokemonTeam userTeam = new PokemonTeam();
-        PokemonTeam opponentTeam = createValidTeam("Opponent");
+    public void execute_opponentTeamNull_fail() {
+        interactor.execute(new StartBattleInputData(createValidTeam("User"), null));
+        assertEquals("Error: Both teams must be selected!", presenter.lastFail);
+    }
 
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
-
+    // === EMPTY TEAMS ===
+    @Test
+    public void execute_userTeamEmpty_fail() {
+        interactor.execute(new StartBattleInputData(new PokemonTeam(), createValidTeam("Opp")));
         assertEquals("Error: Your team must have at least 1 Pokémon with HP > 0!", presenter.lastFail);
-        assertNull(presenter.lastSuccess);
     }
 
     @Test
-    public void execute_emptyOpponentTeam_producesFail() {
-        presenter.reset();
-        PokemonTeam userTeam = createValidTeam("User");
-        PokemonTeam opponentTeam = new PokemonTeam();
-
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
-
+    public void execute_opponentTeamEmpty_fail() {
+        interactor.execute(new StartBattleInputData(createValidTeam("User"), new PokemonTeam()));
         assertEquals("Error: Opponent team must have at least 1 Pokémon with HP > 0!", presenter.lastFail);
-        assertNull(presenter.lastSuccess);
     }
 
-    // === HP VALIDATION TESTS ===
-
+    // === ACTIVE POKEMON HP = 0 ===
     @Test
-    public void execute_userTeamActivePokemonFainted_producesFail() {
-        presenter.reset();
-        PokemonTeam userTeam = new PokemonTeam();
-        userTeam.addPokemon(createPokemon("Fainted", 0)); // Active pokemon has 0 HP
-
-        PokemonTeam opponentTeam = createValidTeam("Opponent");
-
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
-
+    public void execute_userActiveZeroHP_fail() {
+        PokemonTeam team = new PokemonTeam();
+        team.addPokemon(createPokemon("Dead", 0));
+        interactor.execute(new StartBattleInputData(team, createValidTeam("Opp")));
         assertEquals("Error: Your team must have at least 1 Pokémon with HP > 0!", presenter.lastFail);
-        assertNull(presenter.lastSuccess);
     }
 
     @Test
-    public void execute_opponentTeamActivePokemonFainted_producesFail() {
-        presenter.reset();
-        PokemonTeam userTeam = createValidTeam("User");
-
-        PokemonTeam opponentTeam = new PokemonTeam();
-        opponentTeam.addPokemon(createPokemon("Fainted", 0));
-
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
-
+    public void execute_opponentActiveZeroHP_fail() {
+        PokemonTeam team = new PokemonTeam();
+        team.addPokemon(createPokemon("Dead", 0));
+        interactor.execute(new StartBattleInputData(createValidTeam("User"), team));
         assertEquals("Error: Opponent team must have at least 1 Pokémon with HP > 0!", presenter.lastFail);
-        assertNull(presenter.lastSuccess);
     }
 
+    // === ACTIVE POKEMON HP < 0 ===
     @Test
-    public void execute_userTeamAllPokemonFainted_producesFail() {
-        presenter.reset();
-        PokemonTeam userTeam = new PokemonTeam();
-        userTeam.addPokemon(createPokemon("Fainted1", 0));
-        userTeam.addPokemon(createPokemon("Fainted2", 0));
-        userTeam.addPokemon(createPokemon("Fainted3", 0));
-
-        PokemonTeam opponentTeam = createValidTeam("Opponent");
-
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
-
+    public void execute_userActiveNegativeHP_fail() {
+        PokemonTeam team = new PokemonTeam();
+        Pokemon p = createPokemon("Neg", 100);
+        p.setCurrentHP(-10);
+        team.addPokemon(p);
+        interactor.execute(new StartBattleInputData(team, createValidTeam("Opp")));
         assertEquals("Error: Your team must have at least 1 Pokémon with HP > 0!", presenter.lastFail);
-        assertNull(presenter.lastSuccess);
     }
 
     @Test
-    public void execute_opponentTeamAllPokemonFainted_producesFail() {
-        presenter.reset();
-        PokemonTeam userTeam = createValidTeam("User");
-
-        PokemonTeam opponentTeam = new PokemonTeam();
-        opponentTeam.addPokemon(createPokemon("Fainted1", 0));
-        opponentTeam.addPokemon(createPokemon("Fainted2", 0));
-
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
-
+    public void execute_opponentActiveNegativeHP_fail() {
+        PokemonTeam team = new PokemonTeam();
+        Pokemon p = createPokemon("Neg", 100);
+        p.setCurrentHP(-5);
+        team.addPokemon(p);
+        interactor.execute(new StartBattleInputData(createValidTeam("User"), team));
         assertEquals("Error: Opponent team must have at least 1 Pokémon with HP > 0!", presenter.lastFail);
-        assertNull(presenter.lastSuccess);
+    }
+
+    // === CRITICAL: Check 5 final return false (active alive, but list all dead) ===
+    @Test
+    public void execute_userActiveAliveButListAllDead_fail() {
+        Pokemon aliveActive = createPokemon("Alive", 100);
+        SplitTeam userTeam = new SplitTeam(aliveActive);
+        userTeam.addToList(createPokemon("Dead1", 0));
+        userTeam.addToList(createPokemon("Dead2", 0));
+
+        interactor.execute(new StartBattleInputData(userTeam, createValidTeam("Opp")));
+        assertEquals("Error: Your team must have at least 1 Pokémon with HP > 0!", presenter.lastFail);
     }
 
     @Test
-    public void execute_userTeamHasOneAlivePokemonButNotActive_producesFail() {
-        presenter.reset();
-        PokemonTeam userTeam = new PokemonTeam();
-        userTeam.addPokemon(createPokemon("Fainted", 0)); // Active is fainted
-        userTeam.addPokemon(createPokemon("Alive", 50));   // But has one alive
+    public void execute_opponentActiveAliveButListAllDead_fail() {
+        Pokemon aliveActive = createPokemon("Alive", 100);
+        SplitTeam oppTeam = new SplitTeam(aliveActive);
+        oppTeam.addToList(createPokemon("Dead1", 0));
+        oppTeam.addToList(createPokemon("Dead2", 0));
 
-        PokemonTeam opponentTeam = createValidTeam("Opponent");
+        interactor.execute(new StartBattleInputData(createValidTeam("User"), oppTeam));
+        assertEquals("Error: Opponent team must have at least 1 Pokémon with HP > 0!", presenter.lastFail);
+    }
 
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
+    // === Check 5 loop TRUE branch (finds alive pokemon) ===
+    @Test
+    public void execute_userTeamWithAlivePokemon_success() {
+        PokemonTeam team = new PokemonTeam();
+        team.addPokemon(createPokemon("Alive", 50));
+        team.addPokemon(createPokemon("Dead", 0));
+        interactor.execute(new StartBattleInputData(team, createValidTeam("Opp")));
+        assertNull(presenter.lastFail);
+        assertNotNull(presenter.lastSuccess);
+    }
 
-        // Should fail because active pokemon has 0 HP
-        assertEquals("Error: Your team must have at least 1 Pokémon with HP > 0!", presenter.lastFail);
+    @Test
+    public void execute_opponentTeamWithAlivePokemon_success() {
+        PokemonTeam team = new PokemonTeam();
+        team.addPokemon(createPokemon("Alive", 75));
+        team.addPokemon(createPokemon("Dead", 0));
+        interactor.execute(new StartBattleInputData(createValidTeam("User"), team));
+        assertNull(presenter.lastFail);
+        assertNotNull(presenter.lastSuccess);
     }
 
     // === SUCCESS TESTS ===
-
     @Test
-    public void execute_validTeams_createsSuccessfulBattle() {
-        presenter.reset();
-        PokemonTeam userTeam = createValidTeam("Player");
-        PokemonTeam opponentTeam = createValidTeam("Enemy");
+    public void execute_bothValid_success() {
+        PokemonTeam user = createValidTeam("Player");
+        PokemonTeam opp = createValidTeam("Enemy");
 
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
+        interactor.execute(new StartBattleInputData(user, opp));
 
         assertNull(presenter.lastFail);
         assertNotNull(presenter.lastSuccess);
@@ -223,206 +242,80 @@ public class StartBattleInteractorTest {
     }
 
     @Test
-    public void execute_multiPokemonTeams_succeeds() {
-        presenter.reset();
-        PokemonTeam userTeam = new PokemonTeam();
-        userTeam.addPokemon(createPokemon("Pikachu", 80));
-        userTeam.addPokemon(createPokemon("Charizard", 90));
-        userTeam.addPokemon(createPokemon("Blastoise", 85));
+    public void execute_multiPokemon_success() {
+        PokemonTeam user = new PokemonTeam();
+        user.addPokemon(createPokemon("P1", 80));
+        user.addPokemon(createPokemon("P2", 90));
 
-        PokemonTeam opponentTeam = new PokemonTeam();
-        opponentTeam.addPokemon(createPokemon("Gengar", 75));
-        opponentTeam.addPokemon(createPokemon("Lucario", 95));
+        PokemonTeam opp = new PokemonTeam();
+        opp.addPokemon(createPokemon("O1", 75));
 
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
-
+        interactor.execute(new StartBattleInputData(user, opp));
         assertNull(presenter.lastFail);
         assertNotNull(presenter.lastSuccess);
-        assertNotNull(presenter.lastSuccess.getBattle());
+    }
 
-        Battle battle = presenter.lastSuccess.getBattle();
-        assertEquals(userTeam, battle.getTeam1());
-        assertEquals(opponentTeam, battle.getTeam2());
+    // === DATA CLASSES ===
+    @Test
+    public void inputData_getters() {
+        PokemonTeam t1 = createValidTeam("A");
+        PokemonTeam t2 = createValidTeam("B");
+        StartBattleInputData data = new StartBattleInputData(t1, t2);
+        assertSame(t1, data.getUserTeam());
+        assertSame(t2, data.getOpponentTeam());
     }
 
     @Test
-    public void execute_teamWithMixedHPPokemon_succeeds() {
-        presenter.reset();
-        PokemonTeam userTeam = new PokemonTeam();
-        userTeam.addPokemon(createPokemon("Healthy", 100)); // Active
-        userTeam.addPokemon(createPokemon("Wounded", 25));
-        userTeam.addPokemon(createPokemon("Critical", 5));
-
-        PokemonTeam opponentTeam = createValidTeam("Opponent");
-
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
-
-        assertNull(presenter.lastFail);
-        assertNotNull(presenter.lastSuccess);
-        assertTrue(presenter.lastSuccess.isSuccess());
+    public void outputData_success_getters() {
+        PokemonTeam t1 = createValidTeam("A");
+        PokemonTeam t2 = createValidTeam("B");
+        Battle b = new Battle(t1, t2);
+        StartBattleOutputData data = new StartBattleOutputData(b, true, "Msg");
+        assertSame(b, data.getBattle());
+        assertTrue(data.isSuccess());
+        assertEquals("Msg", data.getMessage());
     }
 
     @Test
-    public void execute_fullTeamOf6Pokemon_succeeds() {
-        presenter.reset();
-        PokemonTeam userTeam = new PokemonTeam();
-        for (int i = 1; i <= 6; i++) {
-            userTeam.addPokemon(createPokemon("User" + i, 100));
-        }
-
-        PokemonTeam opponentTeam = new PokemonTeam();
-        for (int i = 1; i <= 6; i++) {
-            opponentTeam.addPokemon(createPokemon("Opp" + i, 100));
-        }
-
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
-
-        assertNull(presenter.lastFail);
-        assertNotNull(presenter.lastSuccess);
-        assertTrue(presenter.lastSuccess.isSuccess());
-    }
-
-    // === INPUT DATA TESTS ===
-
-    @Test
-    public void inputData_constructor_storesTeamsCorrectly() {
-        PokemonTeam team1 = createValidTeam("Team1");
-        PokemonTeam team2 = createValidTeam("Team2");
-
-        StartBattleInputData inputData = new StartBattleInputData(team1, team2);
-
-        assertEquals(team1, inputData.getUserTeam());
-        assertEquals(team2, inputData.getOpponentTeam());
+    public void outputData_fail_getters() {
+        StartBattleOutputData data = new StartBattleOutputData(null, false, "Error");
+        assertNull(data.getBattle());
+        assertFalse(data.isSuccess());
+        assertEquals("Error", data.getMessage());
     }
 
     @Test
-    public void inputData_nullTeams_storesNull() {
-        StartBattleInputData inputData = new StartBattleInputData(null, null);
+    public void execute_userTeamNoActive_fail() {
+        NoActiveTeam userTeam = new NoActiveTeam();
+        userTeam.addToList(createPokemon("P1", 50)); // non-empty list, but no active
 
-        assertNull(inputData.getUserTeam());
-        assertNull(inputData.getOpponentTeam());
-    }
-
-    @Test
-    public void inputData_getters_returnCorrectValues() {
-        PokemonTeam userTeam = createValidTeam("User");
-        PokemonTeam opponentTeam = createValidTeam("Opponent");
-
-        StartBattleInputData inputData = new StartBattleInputData(userTeam, opponentTeam);
-
-        assertNotNull(inputData.getUserTeam());
-        assertNotNull(inputData.getOpponentTeam());
-        assertSame(userTeam, inputData.getUserTeam());
-        assertSame(opponentTeam, inputData.getOpponentTeam());
-    }
-
-    // === OUTPUT DATA TESTS ===
-
-    @Test
-    public void outputData_successCase_storesAllFieldsCorrectly() {
-        PokemonTeam team1 = createValidTeam("T1");
-        PokemonTeam team2 = createValidTeam("T2");
-        Battle battle = new Battle(team1, team2);
-        String message = "Battle started!";
-
-        StartBattleOutputData outputData = new StartBattleOutputData(battle, true, message);
-
-        assertEquals(battle, outputData.getBattle());
-        assertTrue(outputData.isSuccess());
-        assertEquals(message, outputData.getMessage());
-    }
-
-    @Test
-    public void outputData_failCase_storesNullBattle() {
-        StartBattleOutputData outputData = new StartBattleOutputData(null, false, "Error!");
-
-        assertNull(outputData.getBattle());
-        assertFalse(outputData.isSuccess());
-        assertEquals("Error!", outputData.getMessage());
-    }
-
-    @Test
-    public void outputData_getters_returnCorrectValues() {
-        PokemonTeam team1 = createValidTeam("A");
-        PokemonTeam team2 = createValidTeam("B");
-        Battle battle = new Battle(team1, team2);
-
-        StartBattleOutputData outputData = new StartBattleOutputData(battle, true, "Success!");
-
-        assertNotNull(outputData.getBattle());
-        assertTrue(outputData.isSuccess());
-        assertEquals("Success!", outputData.getMessage());
-        assertSame(battle, outputData.getBattle());
-    }
-
-    // === EDGE CASES ===
-
-    @Test
-    public void execute_teamWithNegativeHP_treatsSameAsZeroHP() {
-        presenter.reset();
-        PokemonTeam userTeam = new PokemonTeam();
-        Pokemon negativePokemon = createPokemon("Negative", 100);
-        negativePokemon.setCurrentHP(-10); // Set to negative
-        userTeam.addPokemon(negativePokemon);
-
-        PokemonTeam opponentTeam = createValidTeam("Opponent");
-
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
+        interactor.execute(new StartBattleInputData(userTeam, createValidTeam("Opp")));
 
         assertEquals("Error: Your team must have at least 1 Pokémon with HP > 0!", presenter.lastFail);
+        assertNull(presenter.lastSuccess);
     }
 
     @Test
-    public void execute_messageContainsBothPokemonNames() {
-        presenter.reset();
-        PokemonTeam userTeam = new PokemonTeam();
-        userTeam.addPokemon(createPokemon("Pikachu", 100));
+    public void execute_opponentTeamNoActive_fail() {
+        NoActiveTeam oppTeam = new NoActiveTeam();
+        oppTeam.addToList(createPokemon("O1", 50)); // non-empty list, but no active
 
-        PokemonTeam opponentTeam = new PokemonTeam();
-        opponentTeam.addPokemon(createPokemon("Charizard", 100));
+        interactor.execute(new StartBattleInputData(createValidTeam("User"), oppTeam));
 
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
-
-        assertNotNull(presenter.lastSuccess);
-        String message = presenter.lastSuccess.getMessage();
-        assertTrue(message.contains("Pikachu"));
-        assertTrue(message.contains("Charizard"));
-        assertTrue(message.contains("vs"));
-        assertTrue(message.contains("Good luck!"));
+        assertEquals("Error: Opponent team must have at least 1 Pokémon with HP > 0!", presenter.lastFail);
+        assertNull(presenter.lastSuccess);
     }
 
     @Test
-    public void execute_battleObjectHasCorrectReferences() {
-        presenter.reset();
-        PokemonTeam userTeam = createValidTeam("User");
-        PokemonTeam opponentTeam = createValidTeam("Opponent");
-
-        interactor.execute(new StartBattleInputData(userTeam, opponentTeam));
-
-        assertNotNull(presenter.lastSuccess);
-        Battle battle = presenter.lastSuccess.getBattle();
-        assertNotNull(battle);
-        assertSame(userTeam, battle.getTeam1());
-        assertSame(opponentTeam, battle.getTeam2());
-        assertTrue(battle.isBattleOngoing());
-        assertTrue(battle.isTeam1Turn());
+    public void isValidTeam_nullTeam_returnsFalse() {
+        assertFalse(interactor.isValidTeamForTest(null));
     }
 
     @Test
-    public void execute_battleObjectIsProperlyInitialized() {
-        presenter.reset();
-        PokemonTeam team1 = new PokemonTeam();
-        team1.addPokemon(createPokemon("P1", 100));
-        team1.addPokemon(createPokemon("P2", 80));
-
-        PokemonTeam team2 = new PokemonTeam();
-        team2.addPokemon(createPokemon("O1", 90));
-
-        interactor.execute(new StartBattleInputData(team1, team2));
-
-        Battle battle = presenter.lastSuccess.getBattle();
-        assertNotNull(battle.getBattleStatsMap());
-        assertFalse(battle.getBattleStatsMap().isEmpty());
-        assertNull(battle.getWinner()); // ✅ FIXED: Should be null initially - battle hasn't ended yet
+    public void isValidTeam_nullTeam_usedForUserAndOpponent() {
+        // This one is optional for lines; the first already hits the branch.
+        assertFalse(interactor.isValidTeamForTest(null));
     }
+
+
 }

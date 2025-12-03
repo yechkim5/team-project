@@ -7,7 +7,6 @@ import java.util.List;
 
 /**
  * Input Data for Select Team Use Case
- *
  * This class encapsulates the data needed to select a team:
  * - Pokemon to add
  * - Selected moves for that pokemon

@@ -146,6 +146,8 @@ public class SelectTeamInteractor implements SelectTeamInputBoundary {
 
     /**
      * Create a new Pokemon with selected moves
+     * @param original original pokemon that was selected with no moves
+     * @param selectedMoves list of the users selected moves for a pokemon
      */
     private Pokemon createPokemonWithMoves(Pokemon original, List<Move> selectedMoves) {
         Pokemon newPokemon = new Pokemon(
