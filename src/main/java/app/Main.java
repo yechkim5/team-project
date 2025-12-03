@@ -65,8 +65,13 @@ public class Main {
                 viewModel.addPropertyChangeListener(new PropertyChangeListener() {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        // Only check on team property changes
+                        // Only check when a team is finalized, not on every property change
                         if (!evt.getPropertyName().equals(SelectTeamViewModel.TEAM_PROPERTY)) {
+                            return;
+                        }
+
+                        // Only proceed if Player 2 has finalized their team
+                        if (!viewModel.isTeamFinalized() || viewModel.getPlayerNumber() != 2) {
                             return;
                         }
 
@@ -79,26 +84,23 @@ public class Main {
                         PokemonTeam team1 = interactor.getTeam(1);
                         PokemonTeam team2 = interactor.getTeam(2);
 
-                        // Debug logging - REMOVE AFTER TESTING
-                        System.out.println("=== TEAM CHECK ===");
-                        System.out.println("Team 1 size: " + team1.getTeam().size());
-                        System.out.println("Team 2 size: " + team2.getTeam().size());
-
-                        if (team1.getTeam().size() > 0) {
-                            System.out.println("Team 1 first Pokemon: " + team1.getTeam().get(0).getName());
-                        }
-                        if (team2.getTeam().size() > 0) {
-                            System.out.println("Team 2 first Pokemon: " + team2.getTeam().get(0).getName());
-                        }
-
                         // Check if both teams are ready (6 Pokemon each)
                         if (team1.getTeam().size() == 6 && team2.getTeam().size() == 6) {
                             battleStarted[0] = true; // Set flag to prevent re-triggering
 
                             SwingUtilities.invokeLater(() -> {
+                                // First message: Player 2 team is ready
+                                JOptionPane.showMessageDialog(
+                                        frame,
+                                        "Player 2's team is complete!\nBoth teams are ready for battle!",
+                                        "Team Complete",
+                                        JOptionPane.INFORMATION_MESSAGE
+                                );
+
+                                // Second message: Ask to start battle
                                 int confirm = JOptionPane.showConfirmDialog(
                                         frame,
-                                        "Both teams are ready! Start the battle?",
+                                        "Start the battle now?",
                                         "Ready for Battle",
                                         JOptionPane.YES_NO_OPTION
                                 );
@@ -260,8 +262,13 @@ public class Main {
                 viewModel.addPropertyChangeListener(new PropertyChangeListener() {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        // Only check on team property changes
+                        // Only check when a team is finalized, not on every property change
                         if (!evt.getPropertyName().equals(SelectTeamViewModel.TEAM_PROPERTY)) {
+                            return;
+                        }
+
+                        // Only proceed if Player 2 has finalized their team
+                        if (!viewModel.isTeamFinalized() || viewModel.getPlayerNumber() != 2) {
                             return;
                         }
 
@@ -274,19 +281,24 @@ public class Main {
                         PokemonTeam team1 = interactor.getTeam(1);
                         PokemonTeam team2 = interactor.getTeam(2);
 
-                        // Debug logging - REMOVE AFTER TESTING
-                        System.out.println("=== TEAM CHECK (New Game) ===");
-                        System.out.println("Team 1 size: " + team1.getTeam().size());
-                        System.out.println("Team 2 size: " + team2.getTeam().size());
-
+                        // Check if both teams are ready (6 Pokemon each)
                         // Check if both teams are ready (6 Pokemon each)
                         if (team1.getTeam().size() == 6 && team2.getTeam().size() == 6) {
                             battleStarted[0] = true; // Set flag to prevent re-triggering
 
                             SwingUtilities.invokeLater(() -> {
+                                // First message: Player 2 team is ready
+                                JOptionPane.showMessageDialog(
+                                        frame,
+                                        "Player 2's team is complete!\nBoth teams are ready for battle!",
+                                        "Team Complete",
+                                        JOptionPane.INFORMATION_MESSAGE
+                                );
+
+                                // Second message: Ask to start battle
                                 int confirm = JOptionPane.showConfirmDialog(
                                         frame,
-                                        "Both teams are ready! Start the battle?",
+                                        "Start the battle now?",
                                         "Ready for Battle",
                                         JOptionPane.YES_NO_OPTION
                                 );
