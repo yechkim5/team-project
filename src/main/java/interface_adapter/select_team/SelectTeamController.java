@@ -2,8 +2,8 @@ package interface_adapter.select_team;
 
 import entity.Move;
 import entity.Pokemon;
-import use_case.select_team.SelectTeamInputBoundary;
-import use_case.select_team.SelectTeamInputData;
+import usecase.select_team.SelectTeamInputBoundary;
+import usecase.select_team.SelectTeamInputData;
 
 import java.util.List;
 

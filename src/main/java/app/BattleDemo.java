@@ -3,8 +3,8 @@ package app;
 import entity.*;
 import factory.pokemonFactory;
 import interface_adapter.battle.*;
-import use_case.use_move.*;
-import use_case.start_battle.*;
+import usecase.use_move.*;
+import usecase.start_battle.*;
 import view.BattlePanel;
 
 import javax.swing.*;

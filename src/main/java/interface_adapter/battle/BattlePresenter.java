@@ -1,7 +1,7 @@
 package interface_adapter.battle;
 
-import use_case.use_move.UseMoveOutputBoundary;
-import use_case.use_move.UseMoveOutputData;
+import usecase.use_move.UseMoveOutputBoundary;
+import usecase.use_move.UseMoveOutputData;
 
 /**
  * Presenter for Battle Use Cases

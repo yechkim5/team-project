@@ -2,8 +2,8 @@ package interface_adapter.battle;
 
 import entity.Battle;
 import entity.Move;
-import use_case.use_move.UseMoveInputBoundary;
-import use_case.use_move.UseMoveInputData;
+import usecase.use_move.UseMoveInputBoundary;
+import usecase.use_move.UseMoveInputData;
 
 /**
  * Controller for Battle Use Cases

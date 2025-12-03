@@ -1,4 +1,4 @@
-package use_case.start_battle;
+package usecase.start_battle;
 
 import entity.Battle;
 

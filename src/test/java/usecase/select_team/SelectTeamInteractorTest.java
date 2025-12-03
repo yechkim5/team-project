@@ -1,4 +1,4 @@
-package use_case.select_team;
+package usecase.select_team;
 
 import entity.BaseLevelStats;
 import entity.Move;

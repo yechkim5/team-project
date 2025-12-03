@@ -1,4 +1,4 @@
-package use_case.use_move;
+package usecase.use_move;
 
 import entity.Battle;
 import entity.Pokemon;

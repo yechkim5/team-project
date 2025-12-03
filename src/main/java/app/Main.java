@@ -3,9 +3,9 @@ package app;
 import entity.Battle;
 import entity.GameState;
 import entity.PokemonTeam;
-import use_case.select_team.*;
-import use_case.start_battle.*;
-import use_case.use_move.*;
+import usecase.select_team.*;
+import usecase.start_battle.*;
+import usecase.use_move.*;
 import interface_adapter.select_team.*;
 import interface_adapter.battle.*;
 import view.*;
@@ -128,7 +128,7 @@ public class Main {
         });
     }
 
-    private static void startBattle(JFrame frame, PokemonTeam team1, PokemonTeam team2) {
+    public static void startBattle(JFrame frame, PokemonTeam team1, PokemonTeam team2) {
         // === CRITICAL: Debug logging to verify teams are different ===
         System.out.println("\n=== STARTING BATTLE ===");
         System.out.println("Team 1 Pokemon:");

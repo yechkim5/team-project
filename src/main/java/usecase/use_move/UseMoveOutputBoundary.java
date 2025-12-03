@@ -1,4 +1,4 @@
-package use_case.use_move;
+package usecase.use_move;
 
 /**
  * Output Boundary for Use Move Use Case

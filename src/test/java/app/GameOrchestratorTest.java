@@ -1,6 +1,6 @@
 package app;
 
-import data_access.JsonGameRepository;
+import dataaccess.JsonGameRepository;
 import entity.GameState;
 import entity.PokemonTeam;
 import org.junit.After;
