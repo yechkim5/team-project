@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 import org.json.JSONObject;
 
 import entity.GameState;
-import usecase.game_state_persistence.SaveGameInteractor;
+import use_case.game_state_persistence.SaveGameInteractor;
 
 public class JsonGameRepository {
 

@@ -8,7 +8,7 @@ public class Battle {
     private final PokemonTeam team2;
     private final Map<Pokemon, BattleStats> battleStatsMap = new HashMap<>();
 
-    // ADD THESE THREE FIELDS TO IMPLEMENT THE LOGIC FOR USECASE 2:
+    // ADD THESE THREE FIELDS TO IMPLEMENT THE LOGIC FOR use_case 2:
     private boolean isTeam1Turn = true;
     private boolean battleOngoing = true;
     private PokemonTeam winner = null;
@@ -27,7 +27,7 @@ public class Battle {
     }
 
 
-    // ========== ADD THESE METHODS FOR USECASE 2 ==========
+    // ========== ADD THESE METHODS FOR use_case 2 ==========
 
     /**
      * Check if battle should end

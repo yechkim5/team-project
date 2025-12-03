@@ -16,16 +16,17 @@ import entity.*;
  * Factory that creates a real Pokemon from the PokeAPI.
  * Usage: new pokemonFactory("pikachu").getPokemon()
  */
-public class pokemonFactory {
+public class pokemonFactory implements Factory {
     private final String pokeid;
     private final pokemonFetcher pf;
     private final JSONObject oj;
     private final moveBehaviourFactory moveBehaviourFactory;
+    private final String pokeid;
 
     public pokemonFactory(String pokeid){
         this.pokeid = pokeid;
-        this.pf = new pokemonFetcher();
-        this.oj = pf.getPokemon(pokeid);
+        this.pokemonFetcher = new pokemonFetcher();
+        this.pokemonJSONObject = pokemonFetcher.getPokemon(pokeid);
         this.moveBehaviourFactory = new moveBehaviourFactory();
     }
 
@@ -34,14 +35,14 @@ public class pokemonFactory {
      */
     public Pokemon getPokemon() {
         // Get Pokemon name
-        String name = pf.getPokemonName(oj);
+        String name = pokemonFetcher.getPokemonName(pokemonJSONObject);
 
         // Get types and convert String[] to List<String>
-        String[] typesArray = pf.getPokemonType(oj);
+        String[] typesArray = pokemonFetcher.getPokemonType(pokemonJSONObject);
         List<String> types = Arrays.asList(typesArray);
 
         // Get stats from API - note: API returns "special-attack" and "special-defense" with hyphens
-        Map<String, Object> statsMap = pf.getPokemonStats(oj);
+        Map<String, Object> statsMap = pokemonFetcher.getPokemonStats(pokemonJSONObject);
 
         // Build BaseLevelStats using builder pattern
         BaseLevelStats baseStats = new BaseLevelStats.BaseLevelStatsBuilder()
@@ -54,7 +55,7 @@ public class pokemonFactory {
             .build();
 
         // Get sprite URLs
-        String[] sprites = pf.getPokemonSprite(oj);
+        String[] sprites = pokemonFetcher.getPokemonSprite(pokemonJSONObject);
         String frontSpriteUrl = sprites[0];
         String backSpriteUrl = sprites[1];
 
@@ -64,7 +65,7 @@ public class pokemonFactory {
         // Set moves (up to 10)
         List<Move> moves = movesFactory();
         Move[] movesArray = pokemon.getMoves();
-        int movesToAdd = Math.min(10, moves.size());
+        int movesToAdd = Math.min(pokemonMaxMoves, moves.size());
         for (int i = 0; i < movesToAdd; i++) {
             movesArray[i] = moves.get(i);
         }
@@ -72,16 +73,16 @@ public class pokemonFactory {
         return pokemon;
     }
 
-    private List<Move> movesFactory(){
+    private List<Move> movesFactory() {
         List<Move> moveList = new ArrayList<>();
 
         try {
-            HashMap<String, HashMap<String, Object>> moveMap = pf.getPokemonMoves(oj);
+            HashMap<String, HashMap<String, Object>> moveMap = pokemonFetcher.getPokemonMoves(pokemonJSONObject);
 
             // Iterate through moves (limit to first 10 for team selection)
             int count = 0;
             for (Map.Entry<String, HashMap<String, Object>> entry : moveMap.entrySet()) {
-                if (count >= 10) break;
+                if (count >= pokemonMaxMoves) break;
 
                 String moveName = entry.getKey();
                 HashMap<String, Object> moveInfo = entry.getValue();

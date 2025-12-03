@@ -10,20 +10,10 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class pokemonFetcher {
-
-    public static void main(String[] args) throws IOException {
-        pokemonFetcher pf = new pokemonFetcher();
-        JSONObject oj = pf.getPokemon("charizard");
-        // System.out.println(pf.getPokemonName(oj));
-
-        System.out.println(pf.getPokemonStats(oj));
-        System.out.println(pf.getPokemonMoves(oj));
-        // System.out.println(pf.getPokemonType(oj));
-        // System.out.println(Arrays.toString(pf.getPokemonSprite(oj)));
-    }
+public class pokemonFetcher implements Fetcher{
 
     public final OkHttpClient client = new OkHttpClient();
+    public final int pokemonMaxMoves = 4;
 
     public JSONObject getPokemon(String id) {
         // Private class just to get the raw pokemon response object
@@ -39,10 +29,7 @@ public class pokemonFetcher {
             }
 
             String body = response.body().string();
-            JSONObject json = new JSONObject(body);
-
-            return json;
-
+            return new JSONObject(body);
 
         } catch (IOException e) {
             System.out.println("IOexception" + e);
@@ -56,13 +43,13 @@ public class pokemonFetcher {
 
     public HashMap<String, HashMap<String, Object>> getPokemonMoves(JSONObject pokemon) throws IOException {
         JSONArray moves = pokemon.getJSONArray("moves");
-        HashMap<String, HashMap<String, Object>> move = new HashMap<>(4);
+        HashMap<String, HashMap<String, Object>> move = new HashMap<>(pokemonMaxMoves);
 
         for (int i = 0; i < moves.length(); i++) {
 
-            JSONObject move_entry = moves.getJSONObject(i);
-            JSONObject move_object = move_entry.getJSONObject("move");
-            String url = move_object.getString("url");
+            JSONObject moveEntry = moves.getJSONObject(i);
+            JSONObject moveObject = moveEntry.getJSONObject("move");
+            String url = moveObject.getString("url");
 
             Request request = new Request.Builder()
                     .url(url)
@@ -76,7 +63,7 @@ public class pokemonFetcher {
                 String body = response.body().string();
                 JSONObject json = new JSONObject(body);
 
-                HashMap<String, Object> move_info = new HashMap<>();
+                HashMap<String, Object> moveInfo = new HashMap<>();
                 int pp = json.getInt("pp");
                 String name = json.getString("name");
 
@@ -86,13 +73,13 @@ public class pokemonFetcher {
                 JSONObject typeObject = json.getJSONObject("type");
                 String type = typeObject.getString("name");
 
-                move_info.put("type", type);
-                move_info.put("power", power);
-                move_info.put("pp", pp);
+                moveInfo.put("type", type);
+                moveInfo.put("power", power);
+                moveInfo.put("pp", pp);
 
-                move.put(name, move_info);
+                move.put(name, moveInfo);
 
-            } catch (IOException e1){
+            } catch (IOException e1) {
                 System.out.println("IOexception" + e1);
             }
 

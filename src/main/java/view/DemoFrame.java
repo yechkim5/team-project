@@ -3,13 +3,17 @@ package view;
 import entity.*;
 import factory.pokemonFactory;
 import interface_adapter.battle.*;
-import usecase.use_move.*;
-import usecase.start_battle.*;
-import usecase.select_team.SelectTeamInteractor;
-import usecase.select_team.SelectTeamOutputBoundary;
+import use_case.use_move.*;
+import use_case.start_battle.*;
+import use_case.select_team.SelectTeamInteractor;
+import use_case.select_team.SelectTeamOutputBoundary;
 import interface_adapter.select_team.SelectTeamController;
 import interface_adapter.select_team.SelectTeamPresenter;
 import interface_adapter.select_team.SelectTeamViewModel;
+import interface_adapter.end_battle.EndBattleController;
+import use_case.end_battle.EndBattleInputBoundary;
+import use_case.end_battle.EndBattleInputData;
+
 
 import javax.swing.*;
 
@@ -113,8 +117,27 @@ public class DemoFrame extends JFrame {
             UseMoveInputBoundary useMoveInteractor = new UseMoveInteractor(useMovePresenter);
             BattleController battleController = new BattleController(useMoveInteractor);
 
-            // Create BattlePanel with proper dependencies
-            return new BattlePanel(battle, battleController, useMoveViewModel);
+            // Dummy End Battle interactor for the DEMO frame.
+            // In the real app (Main), Rematch/New Game is fully wired.
+            EndBattleInputBoundary demoEndBattleInteractor = new EndBattleInputBoundary() {
+                @Override
+                public void execute(EndBattleInputData inputData) {
+                    JOptionPane.showMessageDialog(
+                            DemoFrame.this,
+                            "End-of-battle options (Rematch / New Game)\n" +
+                                    "are only fully wired in the main game.\n" +
+                                    "This DemoFrame is just for UI testing.",
+                            "Battle End (Demo)",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                }
+            };
+
+            EndBattleController demoEndBattleController = new EndBattleController(demoEndBattleInteractor);
+
+            // Create BattlePanel with proper dependencies (4-arg constructor)
+            return new BattlePanel(battle, battleController, useMoveViewModel, demoEndBattleController);
+
 
         } catch (Exception e) {
             e.printStackTrace();

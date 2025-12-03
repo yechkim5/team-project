@@ -9,9 +9,9 @@ import factory.pokemonFactory;
 import interface_adapter.select_team.SelectTeamController;
 import interface_adapter.select_team.SelectTeamPresenter;
 import interface_adapter.select_team.SelectTeamViewModel;
-import usecase.game_state_persistence.SaveGameInteractor;
-import usecase.select_team.SelectTeamInteractor;
-import usecase.select_team.SelectTeamOutputBoundary;
+import use_case.game_state_persistence.SaveGameInteractor;
+import use_case.select_team.SelectTeamInteractor;
+import use_case.select_team.SelectTeamOutputBoundary;
 
 import javax.swing.*;
 import java.awt.*;
@@ -56,6 +56,7 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
     private final JLabel titleLabel;
     private final JButton addToTeamButton;
     private final JButton finalizeTeamButton;
+    private final JButton generateRandomBattleButton;
     private final JScrollPane teamScroll;
 
     // Data storage (view layer only - for UI state)
@@ -119,6 +120,10 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         addToTeamButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         addToTeamButton.addActionListener(e -> addPokemonToTeam());
 
+        generateRandomBattleButton = new JButton("Generate Random Battle");
+        generateRandomBattleButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        generateRandomBattleButton.addActionListener(e -> {});
+
         finalizeTeamButton = new JButton("Finalize Team");
         finalizeTeamButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         finalizeTeamButton.setEnabled(false);
@@ -135,6 +140,8 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         bottomLeft.add(addToTeamButton);
         bottomLeft.add(Box.createVerticalStrut(5));
         bottomLeft.add(finalizeTeamButton);
+        bottomLeft.add(Box.createVerticalStrut(5));
+        bottomLeft.add(generateRandomBattleButton);
         bottomLeft.add(Box.createVerticalStrut(5));
         bottomLeft.add(removeMoveButton);
 
@@ -364,8 +371,14 @@ public class TeamSelectionScreen extends JPanel implements PropertyChangeListene
         }
         else if (evt.getPropertyName().equals(SelectTeamViewModel.MESSAGE_PROPERTY)) {
             String message = viewModel.getMessage();
-            // Only show popup if message is not null, not empty, and different from last shown
-            if (message != null && !message.isEmpty() && !message.equals(lastShownMessage)) {
+
+            // Skip showing popup for Player 2 finalization messages (handled in Main.java now)
+            boolean isPlayer2Finalization = viewModel.isTeamFinalized() &&
+                    viewModel.getPlayerNumber() == 2 &&
+                    (message.contains("finalized") || message.contains("complete"));
+
+            // Only show popup if message is not null, not empty, different from last shown, and not a Player 2 finalization message
+            if (message != null && !message.isEmpty() && !message.equals(lastShownMessage) && !isPlayer2Finalization) {
                 lastShownMessage = message; // Track this message
 
                 if (viewModel.isSuccess()) {

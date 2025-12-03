@@ -1,7 +1,7 @@
 package interface_adapter.select_team;
 
-import usecase.select_team.SelectTeamOutputBoundary;
-import usecase.select_team.SelectTeamOutputData;
+import use_case.select_team.SelectTeamOutputBoundary;
+import use_case.select_team.SelectTeamOutputData;
 import entity.*;
 
 /**
