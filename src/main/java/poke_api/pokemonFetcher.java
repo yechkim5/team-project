@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class pokemonFetcher implements Fetcher{
+public class pokemonFetcher {
 
     public final OkHttpClient client = new OkHttpClient();
     public final int pokemonMaxMoves = 4;
